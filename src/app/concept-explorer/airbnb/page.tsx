@@ -75,16 +75,21 @@ export default function AirbnbLedger() {
 
   const currentScenario = SCENARIOS[activeStep - 1];
 
-  const handleSliderChange = (type: 'hostFee' | 'guestFee', value: number) => {
-  setLedger(prev => ({
-    ...prev,
-    [currentScenario.id]: {
-      // Provide a default object if the current scenario doesn't exist in state yet
-      ...(prev[currentScenario.id] || { hostFee: 0, guestFee: 0 }),
-      [type]: value,
-    },
-  }));
-};
+const handleSliderChange = (type: 'hostFee' | 'guestFee', value: number) => {
+    setLedger(prev => {
+      // Safely grab the current fees or use a default
+      const currentFees = prev[currentScenario.id] || { hostFee: 0, guestFee: 0 };
+      
+      return {
+        ...prev,
+        [currentScenario.id]: {
+          // Explicitly define both keys so TypeScript knows they are 100% numbers
+          hostFee: type === 'hostFee' ? value : currentFees.hostFee,
+          guestFee: type === 'guestFee' ? value : currentFees.guestFee,
+        },
+      };
+    });
+  };
 
   const evaluateScenario = (scenarioId: number) => {
     const choice = ledger[scenarioId];
