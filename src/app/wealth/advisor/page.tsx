@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -169,7 +169,8 @@ const FormattedInput = ({ label, value, onChange, prefix = "$", suffix = "" }: a
     );
 };
 
-export default function AdvisorTool() {
+// We wrap the actual content in this function, so it can be wrapped by Suspense below
+function AdvisorContent() {
     const searchParams = useSearchParams();
     const importedCash = searchParams.get("cash");
 
@@ -622,4 +623,17 @@ export default function AdvisorTool() {
             </footer>
         </div>
     );
+}
+
+// Next.js 13+ requires useSearchParams to be wrapped in a Suspense boundary 
+export default function AdvisorTool() {
+  return (
+    <Suspense fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans text-slate-500">
+            Loading Tonina Advisor...
+        </div>
+    }>
+      <AdvisorContent />
+    </Suspense>
+  );
 }
