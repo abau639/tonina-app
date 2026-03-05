@@ -1,0 +1,111 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:./db.sqlite"
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    
+    // Tonina Financials
+    salary         Int       @default(0)
+    cash           Int       @default(0)
+    investments    Int       @default(0)
+    investmentRate Int       @default(7)
+
+    // *** NEW FIELD FOR SLIDERS ***
+    expenseData    String?   // Stores JSON for allocations/expenses
+    
+    // Relations
+    accounts      Account[]
+    sessions      Session[]
+    loans         Loan[]
+    milestones    Milestone[]
+
+    //Investment Playground
+    portfolioItems PortfolioItem[]
+    
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime? @updatedAt
+}
+
+model Loan {
+    id        String   @id @default(cuid())
+    userId    String
+    name      String
+    balance   Int
+    rate      Float
+    payment   Int
+    type      String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Milestone {
+    id        String   @id @default(cuid())
+    userId    String
+    name      String
+    cost      Int
+    year      Int
+    type      String
+    details   String?
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// NextAuth Boilerplate
+model Account {
+    id                       String  @id @default(cuid())
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String?
+    access_token             String?
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String?
+    session_state            String?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token_expires_in Int?
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+    @@unique([identifier, token])
+}
+
+model PortfolioItem {
+    id        String   @id @default(cuid())
+    userId    String
+    symbol    String
+    createdAt DateTime @default(now())
+
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, symbol]) // Prevents duplicates
+}
+
+model StockDataCache {
+    symbol      String   @id
+    lastUpdated DateTime @default(now())
+    dataBlob    String   // <--- The fix (SQLite compatible)
+}
