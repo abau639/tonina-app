@@ -76,19 +76,27 @@ export default function AirbnbLedger() {
   const currentScenario = SCENARIOS[activeStep - 1];
 
   const handleSliderChange = (type: 'hostFee' | 'guestFee', value: number) => {
-    setLedger(prev => ({
-      ...prev,
-      [currentScenario.id]: {
-        ...prev[currentScenario.id],
-        [type]: value
-      }
-    }));
+    // SECURITY GUARD: Stop TypeScript from panicking on Step 0
+    if (!currentScenario) return;
+
+    setLedger(prev => {
+      const existing = prev[currentScenario.id] || { hostFee: 0, guestFee: 0 };
+      return {
+        ...prev,
+        [currentScenario.id]: {
+          ...existing,
+          [type]: value
+        }
+      };
+    });
   };
 
   const evaluateScenario = (scenarioId: number) => {
     const choice = ledger[scenarioId];
     const s = SCENARIOS.find(x => x.id === scenarioId);
-    if (!s) return null;
+    
+    // SECURITY GUARD: Stop TypeScript from panicking 
+    if (!s || !choice) return null;
 
     let status = "success";
     let message = "";
