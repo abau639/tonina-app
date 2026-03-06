@@ -70,7 +70,7 @@ export default function WealthLandingPage() {
                 <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-pink-600" />
               </h3>
               <p className="text-base text-slate-500 leading-relaxed">
-                A frictionless visual quiz. Pick your lifestyle and instantly project your financial path.
+                A frictionless visual quiz. Pick your lifestyle and instantly play out your choices.
               </p>
             </Link>
 
