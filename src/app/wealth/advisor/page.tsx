@@ -8,6 +8,8 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
   Legend,
@@ -15,13 +17,13 @@ import {
 import { Bar } from 'react-chartjs-2';
 import { 
     Home, Car, GraduationCap, Baby, Dog, Heart, 
-    Banknote, Settings2, Plus, X, Menu, User, Palmtree, Trash2, LineChart
+    Banknote, Settings2, Plus, X, Menu, Palmtree, Trash2, LineChart, HelpCircle
 } from "lucide-react";
 
 // Inject site-wide font and slate text color into Chart.js defaults
 ChartJS.defaults.font.family = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 ChartJS.defaults.color = "#64748b";
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
   <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
@@ -33,8 +35,18 @@ const formatMoney = (num: number | undefined) => {
     if (num === undefined || isNaN(num)) return "$0";
     const isNegative = num < 0;
     const absVal = Math.abs(num);
-    return (isNegative ? "-$" : "$") + Math.round(absVal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (isNegative ? "-$" : "$") + Math.round(absVal).toLocaleString();
 };
+
+const InfoTooltip = ({ text }: { text: string }) => (
+    <div className="group relative inline-flex items-center ml-1.5 cursor-help">
+        <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-pink-500 transition-colors" />
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white text-xs leading-relaxed rounded-md shadow-xl z-50 pointer-events-none text-center">
+            {text}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+        </div>
+    </div>
+);
 
 function calculateProjection(params: any) {
     const {
@@ -50,8 +62,8 @@ function calculateProjection(params: any) {
     let houseAsset = 0, houseDebt = 0, otherAssets = 0, otherDebts = 0;
     let existingLoans = loans.map((l: any) => ({ ...l }));
     let degreeDebt = 0;
-    
     let activeMortgages: any[] = [];
+    let activeDegreeLoans: any[] = [];
 
     for (let m = 0; m <= months; m++) {
         const yearIndex = Math.floor(m / 12);
@@ -78,12 +90,24 @@ function calculateProjection(params: any) {
             });
         }
         if (milestones.includes('Wedding') && isYearStart) weddingGoals.forEach((w: any) => { if (yearIndex === w.year) currentCash -= w.cost; });
-        if (milestones.includes('Degree') && isYearStart) degreeGoals.forEach((w: any) => { if (yearIndex === w.year) { currentCash -= w.paidByCash; degreeDebt += w.paidByLoan; } });
+        
+        if (milestones.includes('Degree') && isYearStart) {
+            degreeGoals.forEach((deg: any) => { 
+                if (yearIndex === deg.year) { 
+                    currentCash -= deg.paidByCash; 
+                    if (deg.useLoan) {
+                        degreeDebt += deg.loanAmount;
+                        activeDegreeLoans.push({ balance: deg.loanAmount, rate: deg.loanRate, term: deg.loanTermMonths });
+                    }
+                } 
+            });
+        }
+
         if (milestones.includes('Big Spend') && isYearStart) bigSpendGoals.forEach((b: any) => { if (yearIndex === b.year) currentCash -= b.cost; });
 
         currentInv *= (1 + (inputs.investmentRate / 100 / 12));
         if (houseAsset > 0) houseAsset *= (1 + (0.03 / 12));
-        if (otherAssets > 0) otherAssets *= (1 - (0.012)); 
+        if (otherAssets > 0) otherAssets *= (1 - (0.15 / 12)); // 15% annual vehicle depreciation
 
         let totalDebtPayment = 0;
         
@@ -95,8 +119,23 @@ function calculateProjection(params: any) {
                 totalDebtPayment += l.payment; 
                 l.balance -= principal; 
                 if (l.balance < 0) l.balance = 0;
+                l.termRemaining = Math.max(0, l.termRemaining - 1);
             }
         });
+
+        activeDegreeLoans.forEach((dl) => {
+            if (dl.balance > 0) {
+                const r = dl.rate / 100 / 12;
+                const pmt = (dl.balance * r) / (1 - Math.pow(1 + r, -dl.term)) || 0;
+                totalDebtPayment += pmt;
+                const principal = pmt - (dl.balance * r);
+                degreeDebt -= principal;
+                dl.balance -= principal;
+                if (dl.balance < 0) dl.balance = 0;
+                dl.term = Math.max(0, dl.term - 1);
+            }
+        });
+        if (degreeDebt < 0) degreeDebt = 0;
         
         if (houseDebt > 0) {
             let totalMortgagePrincipal = 0;
@@ -126,6 +165,7 @@ function calculateProjection(params: any) {
 
         currentCash += (inputs.salary - baseExp - totalDebtPayment);
 
+        // Map strictly 5 year intervals for a clean look
         if (m === 0 || m % 60 === 0) {
             const existingLoanDebt = existingLoans.reduce((a: any, b: any) => a + b.balance, 0);
             const totalLiabilities = Math.round(houseDebt + otherDebts + degreeDebt + existingLoanDebt);
@@ -142,8 +182,7 @@ function calculateProjection(params: any) {
     return data;
 }
 
-// Rebuilt input wrapper to perfectly match the dropdown structure
-const FormattedInput = ({ label, value, onChange, prefix = "$", suffix = "" }: any) => {
+const FormattedInput = ({ label, value, onChange, prefix = "$", suffix = "", tooltip = "" }: any) => {
     const [displayVal, setDisplayVal] = useState("");
     useEffect(() => {
         if (value === 0 || value === undefined) setDisplayVal("");
@@ -152,14 +191,24 @@ const FormattedInput = ({ label, value, onChange, prefix = "$", suffix = "" }: a
 
     const handleChange = (e: any) => {
         const raw = e.target.value.replace(/,/g, '');
-        if (raw === '-' || raw === '' || !isNaN(Number(raw))) {
+        // FIX: Force a true zero if the user clears the box.
+        if (raw === '') {
+            setDisplayVal('');
+            onChange(0); 
+        } else if (raw === '-') {
+            setDisplayVal('-');
+        } else if (!isNaN(Number(raw))) {
             setDisplayVal(e.target.value);
-            if (raw !== '-' && raw !== '') onChange(Number(raw));
+            onChange(Number(raw));
         }
     };
+    
     return (
         <div className="font-sans flex flex-col">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">{label}</label>
+            <div className="flex items-center mb-1.5">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</label>
+                {tooltip && <InfoTooltip text={tooltip} />}
+            </div>
             <div className="relative">
                 {prefix && <span className="absolute left-3 top-2.5 text-slate-400 text-sm">{prefix}</span>}
                 <input type="text" value={displayVal} onChange={handleChange} className={`w-full h-10 text-sm border border-slate-200 rounded-md focus:ring-1 focus:ring-pink-500 outline-none transition-all ${prefix ? 'pl-7' : 'pl-3'} ${suffix ? 'pr-8' : 'pr-3'}`} />
@@ -169,18 +218,17 @@ const FormattedInput = ({ label, value, onChange, prefix = "$", suffix = "" }: a
     );
 };
 
-// We wrap the actual content in this function, so it can be wrapped by Suspense below
 function AdvisorContent() {
     const searchParams = useSearchParams();
     const importedCash = searchParams.get("cash");
 
-    const [inputs, setInputs] = useState({ salary: 4500, cash: importedCash ? parseInt(importedCash) : 24000, investments: 20000, investmentRate: 7 });
-    const [loans, setLoans] = useState<any[]>([{ id: Date.now(), name: "Student Loan", balance: 30000, payment: 350, rate: 5.5, type: 'student' }]);
+    const [inputs, setInputs] = useState({ salary: 4500, cash: importedCash ? parseInt(importedCash) : 24000, investments: 20000, investmentRate: 10 });
+    const [loans, setLoans] = useState<any[]>([{ id: Date.now(), name: "Student Loan", balance: 30000, payment: 350, rate: 5.5, termRemaining: 120, type: 'student' }]);
     const [milestones, setMilestones] = useState<string[]>([]);
     
     const [houseGoals, setHouseGoals] = useState([{ id: Date.now(), cost: 400000, downPercent: 10, year: 5, rate: 6.5 }]); 
     const [carGoals, setCarGoals] = useState([{ id: Date.now(), type: 'finance', cost: 25000, year: 3, down: 3000 }]);
-    const [degreeGoals, setDegreeGoals] = useState([{ id: Date.now(), cost: 40000, year: 2, paidByCash: 10000, paidByLoan: 30000 }]);
+    const [degreeGoals, setDegreeGoals] = useState([{ id: Date.now(), cost: 40000, year: 2, paidByCash: 40000, useLoan: false, loanAmount: 30000, loanRate: 6.5, loanTermMonths: 120 }]);
     const [childGoals, setChildGoals] = useState([{ id: Date.now(), cost: 1500, startYear: 5 }]);
     const [petGoals, setPetGoals] = useState([{ id: Date.now(), food: 50, toys: 20, insurance: 40, startYear: 1 }]);
     const [weddingGoals, setWeddingGoals] = useState([{ id: Date.now(), cost: 20000, year: 3 }]);
@@ -209,6 +257,36 @@ function AdvisorContent() {
     const totalSpent = totalOverhead + (allocations['Investments'] !== undefined ? allocations['Investments'] : categories['Investments']);
     const overspend = totalSpent > inputs.salary;
 
+    // Building the complex mixed-chart datasets (Bars + Retirement Lines)
+    const chartDatasets: any[] = [
+        { type: 'bar' as const, label: 'Total Assets', data: projectionData.map(d => d.assets), backgroundColor: '#cbd5e1', borderRadius: 4 },
+        { type: 'bar' as const, label: 'Liabilities (Debt)', data: projectionData.map(d => -d.liabilities), backgroundColor: '#f43f5e', borderRadius: 4 },
+        { type: 'bar' as const, label: 'Net Worth', data: projectionData.map(d => d.netWorth), backgroundColor: '#0f172a', borderRadius: 4 },
+    ];
+
+    let highlightIndex = -1;
+
+    if (milestones.includes('Retire')) {
+        if (retireGoal.mode === 'target_amount') {
+            chartDatasets.push({
+                type: 'line' as const,
+                label: 'Target Net Worth',
+                data: projectionData.map(() => retireGoal.targetAmount),
+                borderColor: '#fb7185', // Pink 400
+                borderWidth: 2,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false,
+            });
+        } else if (retireGoal.mode === 'target_age') {
+            const targetYearOffset = retireGoal.targetAge - retireGoal.currentAge;
+            highlightIndex = Math.round(targetYearOffset / 5);
+            // Ensure bounds
+            if (highlightIndex < 0) highlightIndex = 0;
+            if (highlightIndex >= projectionData.length) highlightIndex = projectionData.length - 1;
+        }
+    }
+
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-pink-100">
             
@@ -235,12 +313,33 @@ function AdvisorContent() {
 
             <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-12 space-y-16">
                 
-                <div className="text-center max-w-2xl mx-auto mb-10">
+                <div className="text-center max-w-2xl mx-auto mb-4">
                     <div className="inline-flex items-center gap-2 bg-pink-50 text-pink-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-pink-100 mb-4">
-                        The Scenario Planner
+                        Interactive Modeling
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">Design Your Life</h1>
-                    <p className="text-lg text-slate-500">Model your cash flow, plot your life milestones, and project your exact net worth trajectory over the next 30 years.</p>
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">The Scenario Planner</h1>
+                </div>
+
+                {/* Structured Onboarding / Intro */}
+                <div className="max-w-3xl mx-auto bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mb-12 text-slate-600 leading-relaxed">
+                    <h3 className="text-lg font-bold text-slate-900 mb-3">Welcome!</h3>
+                    <p className="mb-4">
+                        Financial independence isn't about avoiding $5 lattes. It's about taking control and preparing yourself for major life events. Shall we start?
+                    </p>
+                    <div className="grid md:grid-cols-3 gap-6 mt-8">
+                        <div>
+                            <span className="flex items-center gap-2 font-bold text-slate-900 text-sm mb-2"><div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">1-2</div> Baseline</span>
+                            <p className="text-xs">Helps establish your current financial reality and limits.</p>
+                        </div>
+                        <div>
+                            <span className="flex items-center gap-2 font-bold text-slate-900 text-sm mb-2"><div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">3</div> Aspirations</span>
+                            <p className="text-xs">Account for major life choices like weddings or real estate.</p>
+                        </div>
+                        <div>
+                            <span className="flex items-center gap-2 font-bold text-slate-900 text-sm mb-2"><div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">4</div> Trajectory</span>
+                            <p className="text-xs">Plot the impact of your decisions over the next 30 years.</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* --- STEP 1: BASELINE --- */}
@@ -252,12 +351,27 @@ function AdvisorContent() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         
                         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                            <h3 className="font-bold text-slate-900 mb-6 flex items-center gap-2"><Banknote className="w-5 h-5 text-pink-600"/> Current Assets & Income</h3>
+                            <h3 className="font-bold text-slate-900 mb-6 flex items-center gap-2"><Banknote className="w-5 h-5 text-pink-600"/> The Assets</h3>
                             <div className="space-y-4">
-                                <FormattedInput label="Monthly Income (Post-Tax)" value={inputs.salary} onChange={(v:number) => setInputs({...inputs, salary: v})} />
+                                <FormattedInput 
+                                    label="Monthly Income" 
+                                    tooltip="Your net pay. This is what you actually have leftover after taxes, 401k deductions, and healthcare premiums."
+                                    value={inputs.salary} 
+                                    onChange={(v:number) => setInputs({...inputs, salary: v})} 
+                                />
                                 <div className="grid grid-cols-2 gap-4">
-                                    <FormattedInput label="Cash (At hand + Bank)" value={inputs.cash} onChange={(v:number) => setInputs({...inputs, cash: v})} />
-                                    <FormattedInput label="Investments (Retirement+)" value={inputs.investments} onChange={(v:number) => setInputs({...inputs, investments: v})} />
+                                    <FormattedInput 
+                                        label="Liquid Cash" 
+                                        tooltip="Cash in your checking accounts, savings accounts, wallet, or anywhere readily accessible."
+                                        value={inputs.cash} 
+                                        onChange={(v:number) => setInputs({...inputs, cash: v})} 
+                                    />
+                                    <FormattedInput 
+                                        label="Investments" 
+                                        tooltip="Capital deployed in retirement accounts, brokerage accounts (stocks, bonds, ETFs), and crypto."
+                                        value={inputs.investments} 
+                                        onChange={(v:number) => setInputs({...inputs, investments: v})} 
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -265,16 +379,15 @@ function AdvisorContent() {
                         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="font-bold text-slate-900 flex items-center gap-2"><Settings2 className="w-5 h-5 text-pink-600"/> Current Liabilities</h3>
-                                <button onClick={() => setLoans([...loans, {id: Date.now(), balance: 0, payment: 0, rate: 0, type: 'loan'}])} className="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg hover:bg-pink-100 transition-colors">+ Add Debt</button>
+                                <button onClick={() => setLoans([...loans, {id: Date.now(), balance: 0, payment: 0, rate: 0, termRemaining: 60, type: 'loan'}])} className="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg hover:bg-pink-100 transition-colors">+ Add Debt</button>
                             </div>
                             <div className="space-y-4 flex-1">
                                 {loans.map((loan, i) => (
                                     <div key={loan.id} className="bg-slate-50 p-4 rounded-xl border border-slate-100 relative pr-10">
                                         <button onClick={() => setLoans(loans.filter(l => l.id !== loan.id))} className="absolute top-4 right-3 p-1.5 bg-white border border-slate-200 text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-200 rounded-md transition-colors"><Trash2 className="w-3.5 h-3.5"/></button>
                                         
-                                        {/* Pixel Perfect Grid Alignment */}
                                         <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <FormattedInput label="Balance" value={loan.balance} onChange={(v:number) => setLoans(loans.map(l => l.id === loan.id ? {...l, balance: v} : l))} />
+                                            <FormattedInput label="Balance Remaining" value={loan.balance} onChange={(v:number) => setLoans(loans.map(l => l.id === loan.id ? {...l, balance: v} : l))} />
                                             <div className="font-sans flex flex-col">
                                                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Type</label>
                                                 <div className="relative">
@@ -287,7 +400,8 @@ function AdvisorContent() {
                                             </div>
                                         </div>
                                         
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <FormattedInput label="Term" value={loan.termRemaining} onChange={(v:number) => setLoans(loans.map(l => l.id === loan.id ? {...l, termRemaining: v} : l))} prefix="" tooltip="How many months until this loan is fully paid off?" />
                                             <FormattedInput label="Monthly Pmt" value={loan.payment} onChange={(v:number) => setLoans(loans.map(l => l.id === loan.id ? {...l, payment: v} : l))} />
                                             <FormattedInput label="Rate %" value={loan.rate} onChange={(v:number) => setLoans(loans.map(l => l.id === loan.id ? {...l, rate: v} : l))} prefix="" suffix="%" />
                                         </div>
@@ -361,7 +475,7 @@ function AdvisorContent() {
                                     </div>
                                     {houseGoals.length > 1 && (
                                         <div className="bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold p-3 rounded-lg text-center italic">
-                                            Building a real estate empire, mogul? Don't forget about property taxes.
+                                            Building a real estate empire, mogul? Don't forget property taxes.
                                         </div>
                                     )}
                                     {houseGoals.map((house, idx) => (
@@ -406,7 +520,7 @@ function AdvisorContent() {
                                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
                                     <div className="flex justify-between items-center border-b border-slate-200 pb-4">
                                         <h4 className="font-bold text-lg flex items-center gap-2"><GraduationCap className="w-5 h-5 text-pink-600"/> Education</h4>
-                                        <button onClick={()=>setDegreeGoals([...degreeGoals, {id: Date.now(), cost: 40000, year: 2, paidByCash: 10000, paidByLoan: 30000}])} className="text-xs text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg font-bold hover:bg-pink-100">+ Add Degree</button>
+                                        <button onClick={()=>setDegreeGoals([...degreeGoals, {id: Date.now(), cost: 40000, year: 2, paidByCash: 40000, useLoan: false, loanAmount: 30000, loanRate: 6.5, loanTermMonths: 120}])} className="text-xs text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg font-bold hover:bg-pink-100">+ Add Degree</button>
                                     </div>
                                     {degreeGoals.map((deg, idx) => (
                                         <div key={deg.id} className="bg-white p-5 rounded-xl border border-slate-200 relative pr-10">
@@ -416,9 +530,27 @@ function AdvisorContent() {
                                                     <FormattedInput label={`Total Cost (Deg ${idx+1})`} value={deg.cost} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].cost=v; setDegreeGoals(g)}} />
                                                     <FormattedInput label="Start Year" value={deg.year} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].year=v; setDegreeGoals(g)}} prefix="" />
                                                 </div>
-                                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-                                                    <FormattedInput label="Paid by Cash" value={deg.paidByCash} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].paidByCash=v; setDegreeGoals(g)}} />
-                                                    <FormattedInput label="Paid by Loan" value={deg.paidByLoan} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].paidByLoan=v; setDegreeGoals(g)}} />
+                                                
+                                                <div className="pt-4 border-t border-slate-100">
+                                                    <div className="flex items-center gap-3 mb-4 cursor-pointer" onClick={() => {let g=[...degreeGoals]; g[idx].useLoan = !g[idx].useLoan; setDegreeGoals(g)}}>
+                                                        <div className={`w-10 h-5 rounded-full transition-colors relative ${deg.useLoan ? 'bg-pink-600' : 'bg-slate-300'}`}>
+                                                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${deg.useLoan ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                                                        </div>
+                                                        <label className="text-xs font-bold text-slate-700 cursor-pointer">Finance with a Loan?</label>
+                                                    </div>
+
+                                                    {deg.useLoan ? (
+                                                        <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                                            <FormattedInput label="Cash Upfront" value={deg.paidByCash} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].paidByCash=v; setDegreeGoals(g)}} />
+                                                            <FormattedInput label="Loan Amount" value={deg.loanAmount} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].loanAmount=v; setDegreeGoals(g)}} />
+                                                            <FormattedInput label="Loan Rate" value={deg.loanRate} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].loanRate=v; setDegreeGoals(g)}} suffix="%" prefix="" />
+                                                            <FormattedInput label="Term" tooltip="How many months to pay this off?" value={deg.loanTermMonths} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].loanTermMonths=v; setDegreeGoals(g)}} prefix="" />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="grid grid-cols-1">
+                                                            <FormattedInput label="Paid by Cash (Total)" value={deg.paidByCash} onChange={(v:number)=>{let g=[...degreeGoals]; g[idx].paidByCash=v; setDegreeGoals(g)}} />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -543,45 +675,104 @@ function AdvisorContent() {
 
                 {/* --- STEP 4: RESULTS --- */}
                 <section>
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center gap-3 mb-4">
                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-sm"><LineChart className="w-4 h-4"/></div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Future Projection</h2>
+                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Future Trajectory</h2>
                     </div>
                     
+                    <p className="text-sm text-slate-500 italic mb-6 leading-relaxed">
+                        *Annual projections assume: investments grow by {inputs.investmentRate}% in line with historic S&P 500 growth rates, real estate appreciates 3%, and vehicles lose 15% of their value.
+                    </p>
+
                     <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm mb-6">
                         <div className="h-[400px] w-full">
-                            <Bar data={{
-                                labels: projectionData.map(d => d.yearLabel),
-                                datasets: [
-                                    { label: 'Total Assets', data: projectionData.map(d => d.assets), backgroundColor: '#cbd5e1', borderRadius: 4 }, // Slate-300
-                                    { label: 'Liabilities (Debt)', data: projectionData.map(d => -d.liabilities), backgroundColor: '#f43f5e', borderRadius: 4 }, // Rose-500
-                                    { label: 'Net Worth', data: projectionData.map(d => d.netWorth), backgroundColor: '#0f172a', borderRadius: 4 }, // Slate-900
-                                ]
-                            }} options={{ 
-                                responsive: true, maintainAspectRatio: false, 
-                                interaction: { mode: 'index', intersect: false },
-                                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 } } } },
-                                scales: { y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 }, callback: v => '$' + Number(v)/1000 + 'k' } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } 
-                            }} />
+                            <Bar 
+                                data={{
+                                    labels: projectionData.map(d => d.yearLabel),
+                                    datasets: chartDatasets
+                                }} 
+                                options={{ 
+                                    responsive: true, 
+                                    maintainAspectRatio: false, 
+                                    interaction: { mode: 'index', intersect: false },
+                                    plugins: { 
+                                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 } } } 
+                                    },
+                                    scales: { 
+                                        y: { 
+                                            title: {
+                                                display: true,
+                                                text: '$ 000s',
+                                                color: '#0f172a',
+                                                font: { size: 11, weight: 'bold' }
+                                            },
+                                            grid: { color: '#f1f5f9' }, 
+                                            ticks: { 
+                                                color: '#0f172a',
+                                                font: { size: 11, weight: 'bold' }, 
+                                                callback: (v) => (Number(v) / 1000).toLocaleString()
+                                            } 
+                                        }, 
+                                        x: { 
+                                            grid: { display: false }, 
+                                            ticks: { font: { size: 11 } } 
+                                        } 
+                                    } 
+                                }} 
+                                plugins={[{
+                                    id: 'mbbHighlight',
+                                    beforeDatasetsDraw: (chart) => {
+                                        if (highlightIndex >= 0 && highlightIndex < chart.data.labels.length) {
+                                            const ctx = chart.ctx;
+                                            const xCenter = chart.scales.x.getPixelForTick(highlightIndex);
+                                            const tickWidth = chart.scales.x.width / chart.data.labels.length;
+                                            const boxWidth = tickWidth * 0.85; 
+                                            const xStart = xCenter - boxWidth / 2;
+                                            const yTop = chart.chartArea.top + 15;
+                                            const yBottom = chart.chartArea.bottom;
+                            
+                                            ctx.save();
+                                            
+                                            // Draw shaded background behind bars
+                                            ctx.fillStyle = 'rgba(251, 113, 133, 0.05)'; 
+                                            ctx.fillRect(xStart, yTop, boxWidth, yBottom - yTop);
+                            
+                                            // Draw dashed border
+                                            ctx.strokeStyle = '#fb7185';
+                                            ctx.lineWidth = 1.5;
+                                            ctx.setLineDash([4, 4]);
+                                            ctx.strokeRect(xStart, yTop, boxWidth, yBottom - yTop);
+                                            
+                                            // Label
+                                            ctx.fillStyle = '#be123c'; 
+                                            ctx.font = 'bold 11px Inter, sans-serif';
+                                            ctx.textAlign = 'center';
+                                            ctx.fillText('Target', xCenter, yTop - 5);
+                                            
+                                            ctx.restore();
+                                        }
+                                    }
+                                }]}
+                            />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Year 1 View */}
+                        {/* Starting Status View */}
                         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 border-b border-slate-100 pb-3">Year 1 Status</h3>
+                            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 border-b border-slate-100 pb-3">Starting Baseline</h3>
                             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
                                 <div>
-                                    <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Monthly Free Cash</span>
+                                    <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Cash After Expenses</span>
                                     <span className={`text-2xl font-bold ${inputs.salary - totalSpent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{formatMoney(inputs.salary - totalSpent)}</span>
                                 </div>
                                 <div>
                                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Assets</span>
-                                    <span className="text-2xl font-bold text-slate-900">{formatMoney(inputs.cash + inputs.investments)}</span>
+                                    <span className="text-2xl font-bold text-slate-900">{formatMoney(projectionData[0]?.assets)}</span>
                                 </div>
                                 <div>
                                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Debt</span>
-                                    <span className="text-2xl font-bold text-rose-600">{formatMoney(loans.reduce((a,b)=>a+b.balance,0))}</span>
+                                    <span className="text-2xl font-bold text-rose-600">{formatMoney(projectionData[0]?.liabilities)}</span>
                                 </div>
                                 <div>
                                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Starting Net Worth</span>
@@ -596,15 +787,15 @@ function AdvisorContent() {
                             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
                                 <div>
                                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Projected Assets</span>
-                                    <span className="text-2xl font-bold text-slate-900">{formatMoney(projectionData[6]?.assets)}</span>
+                                    <span className="text-2xl font-bold text-slate-900">{formatMoney(projectionData[projectionData.length - 1]?.assets)}</span>
                                 </div>
                                 <div>
                                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Remaining Debt</span>
-                                    <span className="text-2xl font-bold text-rose-600">{formatMoney(Math.abs(projectionData[6]?.liabilities || 0))}</span>
+                                    <span className="text-2xl font-bold text-rose-600">{formatMoney(Math.abs(projectionData[projectionData.length - 1]?.liabilities || 0))}</span>
                                 </div>
                                 <div className="col-span-2 pt-2">
                                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Final Net Worth</span>
-                                    <span className="text-3xl font-bold text-slate-500 tracking-tight">{formatMoney(projectionData[6]?.netWorth)}</span>
+                                    <span className="text-3xl font-bold text-slate-500 tracking-tight">{formatMoney(projectionData[projectionData.length - 1]?.netWorth)}</span>
                                 </div>
                             </div>
                         </div>
@@ -625,12 +816,11 @@ function AdvisorContent() {
     );
 }
 
-// Next.js 13+ requires useSearchParams to be wrapped in a Suspense boundary 
 export default function AdvisorTool() {
   return (
     <Suspense fallback={
         <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans text-slate-500">
-            Loading Tonina Advisor...
+            Loading Scenario Planner...
         </div>
     }>
       <AdvisorContent />
