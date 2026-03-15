@@ -84,7 +84,7 @@ export default function BlogPost() {
           
           <div className="bg-pink-50 p-6 rounded-2xl border border-pink-100 text-sm">
             <strong className="text-pink-900 block mb-2 font-bold">P.S. What is a Tonina?</strong>
-            <span className="text-pink-800">For the uninitiated: a <em>Tonina</em> is a pink freshwater dolphin found in the Amazon River (the only one of its kind in the Americas). Besides, who doesn't love dolphins?</span>
+            <span className="text-pink-800">For the uninitiated: a <em>Tonina</em> is a pink freshwater dolphin found in the Amazon River (the best known of its kind in the Americas). Besides, who doesn't love dolphins?</span>
           </div>
         </div>
       </article>

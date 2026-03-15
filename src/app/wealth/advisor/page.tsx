@@ -33,6 +33,7 @@ const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
 
 const formatMoney = (num: number | undefined) => {
     if (num === undefined || isNaN(num)) return "$0";
+    if (num === Infinity || num === -Infinity) return "$0"; // Safety fallback
     const isNegative = num < 0;
     const absVal = Math.abs(num);
     return (isNegative ? "-$" : "$") + Math.round(absVal).toLocaleString();
@@ -57,8 +58,8 @@ function calculateProjection(params: any) {
 
     const months = 30 * 12; 
     const data = [];
-    let currentCash = inputs.cash;
-    let currentInv = inputs.investments;
+    let currentCash = inputs.cash || 0;
+    let currentInv = inputs.investments || 0;
     let houseAsset = 0, houseDebt = 0, otherAssets = 0, otherDebts = 0;
     let existingLoans = loans.map((l: any) => ({ ...l }));
     let degreeDebt = 0;
@@ -69,6 +70,7 @@ function calculateProjection(params: any) {
         const yearIndex = Math.floor(m / 12);
         const isYearStart = (m % 12 === 0);
 
+        // 1. Trigger Life Events on Year Start
         if (milestones.includes('Real Estate') && isYearStart) {
             houseGoals.forEach((house: any) => {
                 if (yearIndex === house.year) {
@@ -78,7 +80,12 @@ function calculateProjection(params: any) {
                         houseAsset += house.cost; 
                         const newDebt = (house.cost - downPmt);
                         houseDebt += newDebt;
-                        activeMortgages.push({ balance: newDebt, rate: house.rate, term: 360 });
+                        
+                        // Calculate fixed payment once at origination to prevent divide-by-zero later
+                        const r = house.rate / 100 / 12;
+                        const term = 360; // 30 yr mortgage
+                        const pmt = r === 0 ? (newDebt / term) : (newDebt * r) / (1 - Math.pow(1 + r, -term));
+                        activeMortgages.push({ balance: newDebt, rate: house.rate, term: term, pmt: pmt });
                     }
                 }
             });
@@ -97,7 +104,12 @@ function calculateProjection(params: any) {
                     currentCash -= deg.paidByCash; 
                     if (deg.useLoan) {
                         degreeDebt += deg.loanAmount;
-                        activeDegreeLoans.push({ balance: deg.loanAmount, rate: deg.loanRate, term: deg.loanTermMonths });
+                        
+                        // Calculate fixed payment once at origination
+                        const r = deg.loanRate / 100 / 12;
+                        const term = deg.loanTermMonths > 0 ? deg.loanTermMonths : 1; 
+                        const pmt = r === 0 ? (deg.loanAmount / term) : (deg.loanAmount * r) / (1 - Math.pow(1 + r, -term));
+                        activeDegreeLoans.push({ balance: deg.loanAmount, rate: deg.loanRate, term: term, pmt: pmt });
                     }
                 } 
             });
@@ -105,55 +117,60 @@ function calculateProjection(params: any) {
 
         if (milestones.includes('Big Spend') && isYearStart) bigSpendGoals.forEach((b: any) => { if (yearIndex === b.year) currentCash -= b.cost; });
 
+        // 2. Asset Growth & Depreciation
         currentInv *= (1 + (inputs.investmentRate / 100 / 12));
         if (houseAsset > 0) houseAsset *= (1 + (0.03 / 12));
         if (otherAssets > 0) otherAssets *= (1 - (0.15 / 12)); // 15% annual vehicle depreciation
 
+        // 3. Process Debt Payments
         let totalDebtPayment = 0;
         
         existingLoans.forEach((l: any) => {
             if (l.balance > 0) {
                 const r = (l.rate || 0) / 100 / 12;
-                const pmt = l.payment; 
-                const principal = pmt - (l.balance * r);
-                totalDebtPayment += l.payment; 
-                l.balance -= principal; 
+                const interest = l.balance * r;
+                let principal = l.payment - interest;
+                if (principal > l.balance) principal = l.balance; // Don't overpay
+                
+                totalDebtPayment += (principal + interest);
+                l.balance -= principal;
                 if (l.balance < 0) l.balance = 0;
-                l.termRemaining = Math.max(0, l.termRemaining - 1);
             }
         });
 
         activeDegreeLoans.forEach((dl) => {
             if (dl.balance > 0) {
                 const r = dl.rate / 100 / 12;
-                const pmt = (dl.balance * r) / (1 - Math.pow(1 + r, -dl.term)) || 0;
-                totalDebtPayment += pmt;
-                const principal = pmt - (dl.balance * r);
+                const interest = dl.balance * r;
+                let principal = dl.pmt - interest;
+                if (principal > dl.balance) principal = dl.balance; // Don't overpay
+                
+                totalDebtPayment += (principal + interest);
                 degreeDebt -= principal;
                 dl.balance -= principal;
                 if (dl.balance < 0) dl.balance = 0;
-                dl.term = Math.max(0, dl.term - 1);
             }
         });
         if (degreeDebt < 0) degreeDebt = 0;
         
-        if (houseDebt > 0) {
-            let totalMortgagePrincipal = 0;
-            activeMortgages.forEach((mtg) => {
-                if (mtg.balance > 0) {
-                    const r = mtg.rate / 100 / 12;
-                    const pmt = (mtg.balance * r) / (1 - Math.pow(1 + r, -mtg.term)) || 0;
-                    totalDebtPayment += pmt;
-                    const principal = pmt - (mtg.balance * r);
-                    totalMortgagePrincipal += principal;
-                    mtg.balance -= principal;
-                    if (mtg.balance < 0) mtg.balance = 0;
-                }
-            });
-            houseDebt -= totalMortgagePrincipal;
-            if (houseDebt < 0) houseDebt = 0;
-        }
+        let totalMortgagePrincipal = 0;
+        activeMortgages.forEach((mtg) => {
+            if (mtg.balance > 0) {
+                const r = mtg.rate / 100 / 12;
+                const interest = mtg.balance * r;
+                let principal = mtg.pmt - interest;
+                if (principal > mtg.balance) principal = mtg.balance; // Don't overpay
+                
+                totalDebtPayment += (principal + interest);
+                totalMortgagePrincipal += principal;
+                mtg.balance -= principal;
+                if (mtg.balance < 0) mtg.balance = 0;
+            }
+        });
+        houseDebt -= totalMortgagePrincipal;
+        if (houseDebt < 0) houseDebt = 0;
 
+        // 4. Process Expenses & Cash Flow
         let baseExp = 0;
         Object.entries(categories).forEach(([cat, amount]) => {
             const val = (allocations[cat as string] !== undefined ? allocations[cat as string] : amount);
@@ -163,19 +180,22 @@ function calculateProjection(params: any) {
         if (milestones.includes('Child')) childGoals.forEach((c: any) => { if (yearIndex >= c.startYear) baseExp += c.cost; });
         if (milestones.includes('Pet')) petGoals.forEach((p: any) => { if (yearIndex >= p.startYear && yearIndex < (p.startYear + 12)) baseExp += (p.food + p.toys + p.insurance); });
 
-        currentCash += (inputs.salary - baseExp - totalDebtPayment);
+        currentCash += ((inputs.salary || 0) - baseExp - totalDebtPayment);
 
-        // Map strictly 5 year intervals for a clean look
+        // 5. Map strictly 5 year intervals for a clean look
         if (m === 0 || m % 60 === 0) {
             const existingLoanDebt = existingLoans.reduce((a: any, b: any) => a + b.balance, 0);
             const totalLiabilities = Math.round(houseDebt + otherDebts + degreeDebt + existingLoanDebt);
             const totalAssets = Math.round(currentCash + currentInv + houseAsset + otherAssets);
             
+            // Failsafe against Infinity cascading through the UI
+            const safeNetWorth = isNaN(totalAssets - totalLiabilities) ? 0 : (totalAssets - totalLiabilities);
+
             data.push({
                 yearLabel: `Year ${Math.floor(m / 12)}`,
-                netWorth: totalAssets - totalLiabilities, 
-                assets: totalAssets, 
-                liabilities: totalLiabilities
+                netWorth: safeNetWorth, 
+                assets: isNaN(totalAssets) ? 0 : totalAssets, 
+                liabilities: isNaN(totalLiabilities) ? 0 : totalLiabilities
             });
         }
     }
@@ -191,7 +211,7 @@ const FormattedInput = ({ label, value, onChange, prefix = "$", suffix = "", too
 
     const handleChange = (e: any) => {
         const raw = e.target.value.replace(/,/g, '');
-        // FIX: Force a true zero if the user clears the box.
+        // Force a true zero if the user clears the box to prevent math engine errors.
         if (raw === '') {
             setDisplayVal('');
             onChange(0); 
@@ -222,17 +242,18 @@ function AdvisorContent() {
     const searchParams = useSearchParams();
     const importedCash = searchParams.get("cash");
 
+    // STATIC IDs applied to initial states to prevent Next.js Client Hydration crashes
     const [inputs, setInputs] = useState({ salary: 4500, cash: importedCash ? parseInt(importedCash) : 24000, investments: 20000, investmentRate: 10 });
-    const [loans, setLoans] = useState<any[]>([{ id: Date.now(), name: "Student Loan", balance: 30000, payment: 350, rate: 5.5, termRemaining: 120, type: 'student' }]);
+    const [loans, setLoans] = useState<any[]>([{ id: 1, name: "Student Loan", balance: 30000, payment: 350, rate: 5.5, termRemaining: 120, type: 'student' }]);
     const [milestones, setMilestones] = useState<string[]>([]);
     
-    const [houseGoals, setHouseGoals] = useState([{ id: Date.now(), cost: 400000, downPercent: 10, year: 5, rate: 6.5 }]); 
-    const [carGoals, setCarGoals] = useState([{ id: Date.now(), type: 'finance', cost: 25000, year: 3, down: 3000 }]);
-    const [degreeGoals, setDegreeGoals] = useState([{ id: Date.now(), cost: 40000, year: 2, paidByCash: 40000, useLoan: false, loanAmount: 30000, loanRate: 6.5, loanTermMonths: 120 }]);
-    const [childGoals, setChildGoals] = useState([{ id: Date.now(), cost: 1500, startYear: 5 }]);
-    const [petGoals, setPetGoals] = useState([{ id: Date.now(), food: 50, toys: 20, insurance: 40, startYear: 1 }]);
-    const [weddingGoals, setWeddingGoals] = useState([{ id: Date.now(), cost: 20000, year: 3 }]);
-    const [bigSpendGoals, setBigSpendGoals] = useState([{ id: Date.now(), cost: 10000, year: 1 }]);
+    const [houseGoals, setHouseGoals] = useState([{ id: 1, cost: 400000, downPercent: 10, year: 5, rate: 6.5 }]); 
+    const [carGoals, setCarGoals] = useState([{ id: 1, type: 'finance', cost: 25000, year: 3, down: 3000 }]);
+    const [degreeGoals, setDegreeGoals] = useState([{ id: 1, cost: 40000, year: 2, paidByCash: 40000, useLoan: false, loanAmount: 30000, loanRate: 6.5, loanTermMonths: 120 }]);
+    const [childGoals, setChildGoals] = useState([{ id: 1, cost: 1500, startYear: 5 }]);
+    const [petGoals, setPetGoals] = useState([{ id: 1, food: 50, toys: 20, insurance: 40, startYear: 1 }]);
+    const [weddingGoals, setWeddingGoals] = useState([{ id: 1, cost: 20000, year: 3 }]);
+    const [bigSpendGoals, setBigSpendGoals] = useState([{ id: 1, cost: 10000, year: 1 }]);
     const [retireGoal, setRetireGoal] = useState({ mode: 'target_amount', targetAmount: 2000000, targetAge: 60, currentAge: 25 });
     
     const [categories, setCategories] = useState({ "Rent/Housing": 1500, "Groceries": 500, "Travel": 200, "Investments": 300, "Utilities": 150, "Shopping & Misc": 100 });
@@ -247,7 +268,7 @@ function AdvisorContent() {
     }), [inputs, loans, categories, allocations, milestones, houseGoals, carGoals, degreeGoals, childGoals, petGoals, weddingGoals, bigSpendGoals]);
 
     const totalOverhead = useMemo(() => {
-        let total = loans.reduce((a,b)=>a+b.payment,0);
+        let total = loans.reduce((a,b)=>a+(b.payment||0),0);
         Object.entries(categories).forEach(([c, a]) => { if(c!=='Investments') total += (allocations[c]!==undefined ? allocations[c] : a); });
         if(milestones.includes('Child')) childGoals.forEach(c=>total+=c.cost);
         if(milestones.includes('Pet')) petGoals.forEach(p=>total+=(p.food+p.toys+p.insurance));
@@ -255,37 +276,71 @@ function AdvisorContent() {
     }, [loans, categories, allocations, milestones, childGoals, petGoals]);
 
     const totalSpent = totalOverhead + (allocations['Investments'] !== undefined ? allocations['Investments'] : categories['Investments']);
-    const overspend = totalSpent > inputs.salary;
+    const overspend = totalSpent > (inputs.salary || 0);
 
-    // Building the complex mixed-chart datasets (Bars + Retirement Lines)
-    const chartDatasets: any[] = [
-        { type: 'bar' as const, label: 'Total Assets', data: projectionData.map(d => d.assets), backgroundColor: '#cbd5e1', borderRadius: 4 },
-        { type: 'bar' as const, label: 'Liabilities (Debt)', data: projectionData.map(d => -d.liabilities), backgroundColor: '#f43f5e', borderRadius: 4 },
-        { type: 'bar' as const, label: 'Net Worth', data: projectionData.map(d => d.netWorth), backgroundColor: '#0f172a', borderRadius: 4 },
-    ];
-
+    // Calculate where to place the MBB Target Box
     let highlightIndex = -1;
-
     if (milestones.includes('Retire')) {
         if (retireGoal.mode === 'target_amount') {
-            chartDatasets.push({
+            highlightIndex = projectionData.findIndex(d => d.netWorth >= retireGoal.targetAmount);
+        } else if (retireGoal.mode === 'target_age') {
+            const targetYearOffset = retireGoal.targetAge - retireGoal.currentAge;
+            highlightIndex = Math.round(targetYearOffset / 5);
+            if (highlightIndex < 0) highlightIndex = 0;
+            if (highlightIndex >= projectionData.length) highlightIndex = projectionData.length - 1;
+        }
+    }
+
+    // Memoize Chart Datasets to prevent infinite React loops
+    const chartDatasets = useMemo(() => {
+        const datasets: any[] = [
+            { type: 'bar' as const, label: 'Total Assets', data: projectionData.map(d => d.assets), backgroundColor: '#cbd5e1', borderRadius: 4 },
+            { type: 'bar' as const, label: 'Liabilities (Debt)', data: projectionData.map(d => -d.liabilities), backgroundColor: '#f43f5e', borderRadius: 4 },
+            { type: 'bar' as const, label: 'Net Worth', data: projectionData.map(d => d.netWorth), backgroundColor: '#0f172a', borderRadius: 4 },
+        ];
+        if (milestones.includes('Retire') && retireGoal.mode === 'target_amount') {
+            datasets.push({
                 type: 'line' as const,
                 label: 'Target Net Worth',
                 data: projectionData.map(() => retireGoal.targetAmount),
-                borderColor: '#fb7185', // Pink 400
+                borderColor: '#fb7185',
                 borderWidth: 2,
                 borderDash: [5, 5],
                 pointRadius: 0,
                 fill: false,
             });
-        } else if (retireGoal.mode === 'target_age') {
-            const targetYearOffset = retireGoal.targetAge - retireGoal.currentAge;
-            highlightIndex = Math.round(targetYearOffset / 5);
-            // Ensure bounds
-            if (highlightIndex < 0) highlightIndex = 0;
-            if (highlightIndex >= projectionData.length) highlightIndex = projectionData.length - 1;
         }
-    }
+        return datasets;
+    }, [projectionData, milestones, retireGoal]);
+
+    // Memoize the Chart Plugin to prevent runtime exceptions
+    const mbbPlugin = useMemo(() => ({
+        id: 'mbbHighlight',
+        beforeDatasetsDraw: (chart: any) => {
+            if (milestones.includes('Retire') && retireGoal.mode === 'target_age' && highlightIndex >= 0 && highlightIndex < chart.data.labels.length) {
+                const ctx = chart.ctx;
+                const xCenter = chart.scales.x.getPixelForTick(highlightIndex);
+                const tickWidth = chart.scales.x.width / chart.data.labels.length;
+                const boxWidth = tickWidth * 0.85; 
+                const xStart = xCenter - boxWidth / 2;
+                const yTop = chart.chartArea.top + 15;
+                const yBottom = chart.chartArea.bottom;
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(251, 113, 133, 0.05)'; 
+                ctx.fillRect(xStart, yTop, boxWidth, yBottom - yTop);
+                ctx.strokeStyle = '#fb7185';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(xStart, yTop, boxWidth, yBottom - yTop);
+                ctx.fillStyle = '#be123c'; 
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Target', xCenter, yTop - 5);
+                ctx.restore();
+            }
+        }
+    }), [highlightIndex, milestones, retireGoal.mode]);
 
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-pink-100">
@@ -320,7 +375,6 @@ function AdvisorContent() {
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">The Scenario Planner</h1>
                 </div>
 
-                {/* Structured Onboarding / Intro */}
                 <div className="max-w-3xl mx-auto bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mb-12 text-slate-600 leading-relaxed">
                     <h3 className="text-lg font-bold text-slate-900 mb-3">Welcome!</h3>
                     <p className="mb-4">
@@ -342,7 +396,6 @@ function AdvisorContent() {
                     </div>
                 </div>
 
-                {/* --- STEP 1: BASELINE --- */}
                 <section>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">1</div>
@@ -414,7 +467,6 @@ function AdvisorContent() {
                     </div>
                 </section>
 
-                {/* --- STEP 2: EXPENSES --- */}
                 <section>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">2</div>
@@ -449,7 +501,6 @@ function AdvisorContent() {
                     </div>
                 </section>
 
-                {/* --- STEP 3: MILESTONES --- */}
                 <section>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">3</div>
@@ -673,7 +724,6 @@ function AdvisorContent() {
                     </div>
                 </section>
 
-                {/* --- STEP 4: RESULTS --- */}
                 <section>
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-sm"><LineChart className="w-4 h-4"/></div>
@@ -719,46 +769,12 @@ function AdvisorContent() {
                                         } 
                                     } 
                                 }} 
-                                plugins={[{
-                                    id: 'mbbHighlight',
-                                    beforeDatasetsDraw: (chart) => {
-                                        if (highlightIndex >= 0 && highlightIndex < chart.data.labels.length) {
-                                            const ctx = chart.ctx;
-                                            const xCenter = chart.scales.x.getPixelForTick(highlightIndex);
-                                            const tickWidth = chart.scales.x.width / chart.data.labels.length;
-                                            const boxWidth = tickWidth * 0.85; 
-                                            const xStart = xCenter - boxWidth / 2;
-                                            const yTop = chart.chartArea.top + 15;
-                                            const yBottom = chart.chartArea.bottom;
-                            
-                                            ctx.save();
-                                            
-                                            // Draw shaded background behind bars
-                                            ctx.fillStyle = 'rgba(251, 113, 133, 0.05)'; 
-                                            ctx.fillRect(xStart, yTop, boxWidth, yBottom - yTop);
-                            
-                                            // Draw dashed border
-                                            ctx.strokeStyle = '#fb7185';
-                                            ctx.lineWidth = 1.5;
-                                            ctx.setLineDash([4, 4]);
-                                            ctx.strokeRect(xStart, yTop, boxWidth, yBottom - yTop);
-                                            
-                                            // Label
-                                            ctx.fillStyle = '#be123c'; 
-                                            ctx.font = 'bold 11px Inter, sans-serif';
-                                            ctx.textAlign = 'center';
-                                            ctx.fillText('Target', xCenter, yTop - 5);
-                                            
-                                            ctx.restore();
-                                        }
-                                    }
-                                }]}
+                                plugins={[mbbPlugin]}
                             />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Starting Status View */}
                         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 border-b border-slate-100 pb-3">Starting Baseline</h3>
                             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
@@ -781,7 +797,6 @@ function AdvisorContent() {
                             </div>
                         </div>
 
-                        {/* Year 30 View */}
                         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 border-b border-slate-100 pb-3">Year 30 Horizon</h3>
                             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
