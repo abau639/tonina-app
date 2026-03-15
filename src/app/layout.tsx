@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 import { Inter } from "next/font/google";
 import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/react";
-import { Analytics } from "@vercel/analytics/react";
+import { CSPostHogProvider } from "./providers"; // Import our new PostHog Provider
 
 // Use the standard Inter font
 const inter = Inter({
@@ -28,11 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body className="bg-slate-50 text-slate-900 antialiased selection:bg-pink-100">
-        <TRPCReactProvider>
-            {children}
-            {/* Injects Vercel Analytics seamlessly into every page */}
-            <Analytics />
-        </TRPCReactProvider>
+        <CSPostHogProvider>
+          <TRPCReactProvider>
+              {children}
+          </TRPCReactProvider>
+        </CSPostHogProvider>
       </body>
     </html>
   );
