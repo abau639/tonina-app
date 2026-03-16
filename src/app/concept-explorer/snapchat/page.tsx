@@ -135,17 +135,17 @@ export default function SnapchatCaseStudy() {
             <p className="text-slate-500 mb-8">Your discipline dictates how your final strategy will be evaluated by leadership.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {ROLES.map(r => (
-                <button 
+                <div 
                   key={r.id}
                   onClick={() => { setRole(r.id); setStep("context"); }}
-                  className="text-left p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-300 hover:shadow-md transition-all group"
+                  className="text-left p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-300 hover:shadow-md transition-all group cursor-pointer"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 bg-white rounded-lg border border-slate-200 group-hover:text-pink-600 transition-colors">{r.icon}</div>
                     <h3 className="font-bold text-slate-900">{r.title}</h3>
                   </div>
                   <p className="text-sm text-slate-600 leading-relaxed">{r.desc}</p>
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -203,20 +203,20 @@ export default function SnapchatCaseStudy() {
               {METRICS_DB.map(m => {
                 const isSelected = selectedMetrics.includes(m.id);
                 return (
-                  <button
+                  <div
                     key={m.id}
-                    onClick={() => toggleMetric(m.id)}
-                    className={`text-left p-4 rounded-xl border transition-all ${
+                    onClick={() => { if (!(selectedMetrics.length >= 3 && !isSelected)) toggleMetric(m.id); }}
+                    className={`text-left p-4 rounded-xl border transition-all cursor-pointer ${
                       isSelected 
                         ? 'bg-pink-50 border-pink-400 shadow-sm' 
                         : 'bg-white border-slate-200 hover:border-slate-300 text-slate-600'
-                    } ${selectedMetrics.length >= 3 && !isSelected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    } ${selectedMetrics.length >= 3 && !isSelected ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className={`font-medium ${isSelected ? 'text-pink-900' : 'text-slate-700'}`}>{m.label}</span>
                       {isSelected && <CheckCircle2 className="w-4 h-4 text-pink-600" />}
                     </div>
-                  </button>
+                  </div>
                 )
               })}
             </div>
@@ -294,14 +294,14 @@ export default function SnapchatCaseStudy() {
 
             <div className="space-y-4">
               {STRATEGIES.map(s => (
-                <button
+                <div
                   key={s.id}
                   onClick={() => { setStrategy(s.id); setStep("evaluation"); }}
-                  className="w-full text-left p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-400 hover:shadow-md transition-all group"
+                  className="w-full text-left p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-400 hover:shadow-md transition-all group cursor-pointer"
                 >
                   <h4 className="font-bold text-slate-900 text-lg mb-2 group-hover:text-pink-600 transition-colors">{s.title}</h4>
                   <p className="text-sm text-slate-600 leading-relaxed">{s.desc}</p>
-                </button>
+                </div>
               ))}
             </div>
           </div>
