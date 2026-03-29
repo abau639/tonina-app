@@ -731,7 +731,7 @@ function AdvisorContent() {
                     </div>
                     
                     <p className="text-sm text-slate-500 italic mb-6 leading-relaxed">
-                        *Annual projections assume: investments grow by {inputs.investmentRate}% in line with historic S&P 500 growth rates, real estate appreciates 3%, and vehicles lose 15% of their value.
+                        *Annual projections assume: investments grow by {inputs.investmentRate}%, real estate appreciates 3%, and vehicles lose 15% of their value.
                     </p>
 
                     <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm mb-6">
