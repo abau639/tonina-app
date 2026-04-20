@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, Target, Activity, Users, Lightbulb, AlertTriangle, CheckCircle2, Search, Briefcase, Zap } from "lucide-react";
+import { ArrowRight, ArrowLeft, Target, Activity, Users, Lightbulb, AlertTriangle, CheckCircle2, Search, Briefcase, Zap } from "lucide-react";
 
 // Desaturated, grayscale emoji logo
 const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (

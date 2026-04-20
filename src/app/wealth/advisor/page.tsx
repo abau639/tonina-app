@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -313,34 +313,39 @@ function AdvisorContent() {
         return datasets;
     }, [projectionData, milestones, retireGoal]);
 
-    // Memoize the Chart Plugin to prevent runtime exceptions
+    // Stable ref so the plugin instance never changes (avoids Chart.js duplicate-id crash on re-render)
+    const pluginDataRef = useRef({ highlightIndex, milestones, retireGoalMode: retireGoal.mode });
+    pluginDataRef.current = { highlightIndex, milestones, retireGoalMode: retireGoal.mode };
+
     const mbbPlugin = useMemo(() => ({
         id: 'mbbHighlight',
         beforeDatasetsDraw: (chart: any) => {
-            if (milestones.includes('Retire') && retireGoal.mode === 'target_age' && highlightIndex >= 0 && highlightIndex < chart.data.labels.length) {
+            const { highlightIndex: hi, milestones: ms, retireGoalMode } = pluginDataRef.current;
+            if (ms.includes('Retire') && retireGoalMode === 'target_age' && hi >= 0 && hi < chart.data.labels.length) {
                 const ctx = chart.ctx;
-                const xCenter = chart.scales.x.getPixelForTick(highlightIndex);
+                const xCenter = chart.scales.x.getPixelForTick(hi);
                 const tickWidth = chart.scales.x.width / chart.data.labels.length;
-                const boxWidth = tickWidth * 0.85; 
+                const boxWidth = tickWidth * 0.85;
                 const xStart = xCenter - boxWidth / 2;
                 const yTop = chart.chartArea.top + 15;
                 const yBottom = chart.chartArea.bottom;
 
                 ctx.save();
-                ctx.fillStyle = 'rgba(251, 113, 133, 0.05)'; 
+                ctx.fillStyle = 'rgba(251, 113, 133, 0.05)';
                 ctx.fillRect(xStart, yTop, boxWidth, yBottom - yTop);
                 ctx.strokeStyle = '#fb7185';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([4, 4]);
                 ctx.strokeRect(xStart, yTop, boxWidth, yBottom - yTop);
-                ctx.fillStyle = '#be123c'; 
+                ctx.fillStyle = '#be123c';
                 ctx.font = 'bold 11px Inter, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText('Target', xCenter, yTop - 5);
                 ctx.restore();
             }
         }
-    }), [highlightIndex, milestones, retireGoal.mode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }), []); // Created once — reads live data from pluginDataRef
 
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-pink-100">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Layers, BookOpen, AlertTriangle, DollarSign } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, AlertTriangle, DollarSign, CloudSun } from "lucide-react";
 
 const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
   <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
@@ -33,9 +33,16 @@ export default function ConceptExplorerHub() {
     {
       title: "The Take Rate Tradeoff",
       description: "Play as the CFO reviewing high-value bookings. Adjust host vs. guest fee burdens to maximize EBITDA.",
-      href: "/concept-explorer/airbnb", 
+      href: "/concept-explorer/airbnb",
       icon: <DollarSign className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
       tag: "Marketplace Simulator"
+    },
+    {
+      title: "True Sensation",
+      description: "Skip the forecast numbers. The action engine translates RealFeel temperature, wind, UV, and precipitation into plain human advice on how to get dressed.",
+      href: "/concept-explorer/weather",
+      icon: <CloudSun className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
+      tag: "Weather Intelligence"
     }
   ];
 
