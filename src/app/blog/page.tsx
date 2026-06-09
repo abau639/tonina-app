@@ -10,6 +10,13 @@ const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
 
 const BLOG_POSTS = [
   {
+    slug: "debt-freedom",
+    title: "Your Debt Doesn't Have to Own You",
+    excerpt: "Most college grads carry debt like background noise. Here's why paying it down aggressively — not just investing around it — is the move that buys back your freedom.",
+    date: "JUN 2026",
+    readTime: "2 min read"
+  },
+  {
     slug: "why-i-built-this",
     title: "Why I Built This Platform",
     excerpt: "From securitized bonds to full-stack engineering: exploring the compounding value of building your own tools.",
