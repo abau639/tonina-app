@@ -42,37 +42,33 @@ export default function BlogPost() {
 
         <div className="prose prose-slate prose-lg max-w-none text-slate-700 leading-loose">
           <p>
-            The Scenario Planner on Tonina Wealth was built with one goal in mind: help someone see their finances clearly, and feel empowered to act. That goal has been fulfilled.
+            The Scenario Planner was built to do one thing: help someone see their finances clearly enough to act. That goal has been met.
           </p>
 
           <p>
-            Here&apos;s what I kept seeing: college graduates carrying student debt as if it were just part of the scenery. Background noise. They pay the minimum — not out of laziness, but because it works. Life is manageable, and the debt feels distant. What they don&apos;t see is the quiet tax inflation and compounding interest levy on them every single month.
+            Most college grads carry debt like background noise. They pay the minimum, life is manageable, and the balance just... sits there. What they miss is that inflation and interest are working against them every month, quietly.
           </p>
 
           <p>
-            The financially savvy path sounds counterintuitive: invest your cash, use debt as leverage, let your portfolio outpace the interest rate. And sometimes that&apos;s exactly right. But for most recent grads — without a financial foundation yet — high-interest debt isn&apos;t leverage. It&apos;s a slow drain. The opportunity cost of not investing compounds too, but so does the weight of carrying that balance.
+            Yes, you can invest your cash and let returns outpace the interest rate. Sometimes that is the right call. But for most recent grads without a financial foundation, high-interest debt is not leverage. It is a slow drain, and the peace of mind you gain from paying it down is real and compounding in its own way.
           </p>
 
           <p>
-            The real unlock? Paying down big chunks early. Not because it&apos;s always the mathematically optimal move, but because financial freedom creates mental freedom. When the debt shrinks, the ceiling rises. Choices open up. That peace of mind — that&apos;s the return that never shows up in a spreadsheet.
-          </p>
-
-          <p>
-            That&apos;s what the Scenario Planner is for. Run the numbers. See the crossover point. Feel the difference between minimum payments and aggressive paydown over 30 years. Knowledge is the first step to action.
+            Pay big chunks early. Watch the ceiling rise. That feeling of financial freedom is the return that never shows up on a spreadsheet, and it is worth more than people give it credit for.
           </p>
 
           <hr className="my-10 border-slate-100" />
 
           <div className="bg-pink-50 p-6 rounded-2xl border border-pink-100 text-sm">
-            <strong className="text-pink-900 block mb-2 font-bold">Want to dig deeper?</strong>
+            <strong className="text-pink-900 block mb-2 font-bold">Interested in more?</strong>
             <span className="text-pink-800">
-              Reach out — I&apos;m always happy to talk through a real scenario.{" "}
+              Reach out via{" "}
               <a href="mailto:alfredo@tonina.me" className="underline underline-offset-2 hover:text-pink-600 transition-colors">
-                alfredo@tonina.me
+                email
               </a>{" "}
-              or drop me a message on{" "}
+              or drop me a{" "}
               <a href="https://www.linkedin.com/in/abaudet/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-pink-600 transition-colors">
-                LinkedIn
+                LinkedIn message
               </a>.
             </span>
           </div>
