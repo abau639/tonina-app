@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Layers, BookOpen, AlertTriangle, DollarSign, CloudSun } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, AlertTriangle, DollarSign, CloudSun, TrendingDown } from "lucide-react";
 
 const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
   <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
@@ -9,6 +9,13 @@ const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
 
 export default function ConceptExplorerHub() {
   const concepts = [
+    {
+      title: "The Channel That Looked Fine Until It Wasn't",
+      description: "A CFO case study. Blended LTV:CAC holds at 3.2x for six straight quarters. Channel-level data tells a different story. Find the threshold, make the call.",
+      href: "/concept-explorer/cac",
+      icon: <TrendingDown className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
+      tag: "CFO Case Study"
+    },
     {
       title: "Deconstructing DoorDash",
       description: "A guided, step-by-step financial teardown highlighting the flow of capital and the reality of GAAP net losses.",
