@@ -269,6 +269,10 @@ def render_markdown(profile, ranked, stats) -> str:
     L.append("\n## Compensation snapshot\n")
     L.append(f"_{stats['n_comp']} of {stats['total_jobs']} listings quote pay · "
              f"{stats['n_equity']} mention equity · {stats['n_remote']} are remote._\n")
+    if stats["total_jobs"] and stats["n_comp"] / stats["total_jobs"] < 0.6:
+        L.append("> ℹ️ Many listings omit pay — several states (**Florida included**) have no "
+                 "pay-transparency law, so blank compensation is expected, not a scrape miss. "
+                 "The ranking never penalizes a role for not posting pay.\n")
     if stats["comp_by_stage"]:
         L.append("| Stage | # with pay | avg base min | avg base max |")
         L.append("|---|---|---|---|")
@@ -362,6 +366,11 @@ def render_html(profile, ranked, stats) -> str:
         f'<td class="num">{("$%s"%format(r["avg_max"],",")) if r["avg_max"] else "—"}</td></tr>'
         for r in stats["comp_by_stage"]
     ) or '<tr><td colspan="4" class="muted">No pay data yet — run extract_fields.py</td></tr>'
+    comp_note = ""
+    if stats["total_jobs"] and stats["n_comp"] / stats["total_jobs"] < 0.6:
+        comp_note = ('<p class="muted" style="font-size:12.5px;margin-top:8px">ℹ️ Many listings omit pay — '
+                     'several states (<b>Florida included</b>) have no pay-transparency law, so blank '
+                     'compensation is expected, not a scrape miss. Ranking never penalizes a role for it.</p>')
     own_rows = ", ".join(f'{e(o["o"])} <b>({o["c"]})</b>' for o in stats["ownership"])
     stage_rows = ", ".join(f'{e(s["s"])} <b>({s["c"]})</b>' for s in stats["stage"])
     tuck_rows = "".join(
@@ -440,7 +449,7 @@ td.num {{ font-weight:700; color:var(--pink); }}
 <h2>Ranked opportunities</h2>
 {''.join(cards) if cards else '<p class="muted">No jobs in the database yet. Run the scrape first.</p>'}
 <div class="panel" style="margin-top:24px"><h2>Compensation snapshot <span class="muted" style="font-weight:400">· {stats['n_comp']}/{stats['total_jobs']} quote pay · {stats['n_equity']} mention equity</span></h2>
-  <table><thead><tr><th style="text-align:left">Stage</th><th class="num">#</th><th class="num">avg base min</th><th class="num">avg base max</th></tr></thead>{comp_rows}</table></div>
+  <table><thead><tr><th style="text-align:left">Stage</th><th class="num">#</th><th class="num">avg base min</th><th class="num">avg base max</th></tr></thead>{comp_rows}</table>{comp_note}</div>
 <div class="grid">
   <div class="panel"><h2>What the market wants</h2><table>{fam_rows}</table></div>
   <div class="panel"><h2>Your warm intros (Tuck alumni)</h2><ul>{tuck_rows}</ul>

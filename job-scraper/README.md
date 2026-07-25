@@ -51,6 +51,38 @@ python3 scripts/seed_sample.py --purge   # remove the sample rows when done
 
 ---
 
+## Open your laptop → first run (start here)
+
+You do **not** need the website (`npm`, Next.js) for this — the scraper is a
+standalone Python tool in the `job-scraper/` subfolder.
+
+1. **Get this branch onto your laptop.** In a terminal, in your `tonina-app` folder:
+   ```bash
+   git fetch origin
+   git checkout claude/job-scraper-local-opportunities-6ic7at
+   ```
+   (If you haven't cloned the repo yet: `git clone <your repo URL>` first, then the above.)
+
+2. **Open the repo in Claude Code** (or VS Code). Then you have two ways to go:
+
+   **A) Let Claude Code drive it (recommended — it can fix the board URLs and any
+   broken scraper as it goes).** Paste it this:
+   > "Set up and run `job-scraper/` following its README: create the venv, install
+   > requirements + `playwright install chromium`, help me add my `ANTHROPIC_API_KEY`
+   > to `job-scraper/.env`, run `scripts/check_boards.py` and fix any dead board URLs
+   > in `config/boards.json`, then run `./run_pipeline.sh` for Miami and open the report."
+
+   **B) Do it yourself** — follow **Setup** and **Run the full pipeline** below.
+
+3. **The only credential you add** is your own `ANTHROPIC_API_KEY` (from
+   console.anthropic.com) in `job-scraper/.env`. Nothing here logs into LinkedIn or
+   any personal account. See the access table above.
+
+So yes — connect to the repo, then either ask Claude Code to walk the README with you,
+or run the commands below. The report opens as `job-scraper/out/opportunities.html`.
+
+---
+
 ## Setup (local machine)
 
 ```bash
@@ -143,6 +175,28 @@ python scripts/scrape.py --sources insightpartners,battery,greylock             
 # Add your own: edit config/boards.json (slug, company, url, type). Most VC talent
 # boards run on the 'Consider' platform (jobs.<firm>.com) and parse out of the box.
 ```
+
+## To-do before / during your first real run
+
+- [ ] **Add your `ANTHROPIC_API_KEY`** to `job-scraper/.env` (only credential needed).
+- [ ] **Verify + fix the VC/PE board URLs.** `config/boards.json` ships with best-effort
+      URLs that were **not** reachable from the cloud build environment. Run the checker
+      on your (open-egress) laptop and repair anything flagged `DEAD`/`UNREACHABLE`:
+      ```bash
+      python scripts/check_boards.py
+      ```
+      For each dead one, open the firm's jobs/talent/careers page in a browser, copy the
+      real URL, and update its entry in `config/boards.json`. (`BLOCKED/other` and
+      `redirect` usually still scrape fine — only `DEAD`/`UNREACHABLE` need a new URL.)
+      Or just ask Claude Code: *"run check_boards.py and fix the dead URLs in boards.json."*
+- [ ] **Expect blank compensation on many roles — that's normal, not a bug.** Several
+      states, **Florida included, have no pay-transparency law**, so a large share of
+      Miami listings won't post salary. The tool treats missing pay as expected: comp
+      fields stay `NULL`, the report says so, and **ranking never penalizes a role for
+      not listing pay.** Comp is a bonus signal when present, never a filter.
+- [ ] **Run the Tuck verification loop** (`scripts/verify.py`) against your alumni
+      directory once you have a shortlist — that's the authoritative source for the flags.
+- [ ] (Optional) Retarget city/role by editing `config/search.json` + `config/profile.json`.
 
 ## Query it directly
 
