@@ -12,12 +12,17 @@ Built on top of the `job-scraper` skill (the raw scrapers are vendored under
 | **Industry / role** filter | `--keywords` on the scraper; `config/search.json` |
 | A **family of responsibilities** that's easily tracked | `responsibility_families` taxonomy + `scripts/extract_responsibilities.py` |
 | **C-suite profiles** + LinkedIn summaries | `executives` table + `scripts/enrich_companies.py` |
-| **Tuck MBA alumni** flag | `executives.is_tuck_alum` → rolled up to `companies.has_tuck_alum` |
+| **Tuck MBA alumni** flag | `executives.is_tuck_alum` → rolled up to `companies.has_tuck_alum`; verified by hand via `scripts/verify.py` against your alumni directory |
 | **Stage / series / PE-owned** | `companies.ownership_type`, `company_stage`, `pe_sponsor`, `last_round` |
 | **Local opportunities for *your* profile** | `scripts/report_opportunities.py` → ranked report |
 
 Target for this build: **Miami, FL · 50 mi · Strategic Finance / FP&A + Finance leadership.**
 Configured in `config/search.json` and `config/profile.json` — edit those to retarget.
+
+**Runs local-only by design.** This tool and its database are meant to stay on your
+machine — it is deliberately NOT wired into the tonina.me site and does not deploy to
+Vercel. The database holds personal data about third-party executives; keep it local.
+It uses **no personal-account logins** (see the access table below).
 
 ---
 
@@ -87,6 +92,33 @@ open out/opportunities.html
 
 `run_pipeline.sh` wraps steps 1–5 with the Miami defaults.
 
+## Verify Tuck alumni by hand (the chosen, zero-risk workflow)
+
+The report narrows you to a shortlist of companies worth pursuing. Rather than
+scraping LinkedIn for education data, you confirm Tuck/Dartmouth alumni against your
+own **alumni directory** (the authoritative, sanctioned source) and record what you
+find. No logins, no scraping, no account risk — it all stays local.
+
+```bash
+# a) Export the shortlist to work through in the directory (also writes a CSV)
+python scripts/verify.py worklist --top 20
+
+# b) Record a confirmed alum (name optional; --dartmouth-only for non-Tuck Dartmouth)
+python scripts/verify.py add-alum --company "Palmetto Pay" \
+    --name "Marisol Reyes" --title CEO --detail "Tuck MBA 2013"
+
+# c) Verified NOT an alum? clear the flag.   Inspect anytime with `show`.
+python scripts/verify.py unflag --company "Kendall Foods"
+python scripts/verify.py show   --company "Palmetto Pay"
+
+# d) Re-rank — verified warm-intros rise to the top
+python scripts/report_opportunities.py
+```
+
+`enrich_companies.py` still populates ownership / stage / PE and a *best-guess* C-suite
+(so the worklist tells you who to look up), but the Tuck flag you act on is the one
+**you** verify here — recorded with `confidence: high`, `source: tuck-directory-verified`.
+
 ## Query it directly
 
 ```sql
@@ -117,12 +149,12 @@ and `opportunity_scores` (the ranking snapshot).
 
 ## Honesty about the data
 
-- **`enrich_companies.py` is best-effort.** It grounds on the company's own site when
-  reachable and tags every executive with a confidence level, with hard instructions
-  not to invent people or alumni claims. Treat `confidence: low` execs and Tuck flags
-  as **leads to verify**, not facts. For high-reliability C-suite data, wire in a real
-  source (a logged-in LinkedIn session, Clearbit/PDL, PitchBook) — the `executives`
-  table is the drop-in target.
+- **`enrich_companies.py` is best-effort and only a starting point.** It grounds on the
+  company's own site when reachable and tags every executive with a confidence level,
+  with hard instructions not to invent people or alumni claims. Treat its `confidence: low`
+  execs and any Tuck guesses as **leads to verify, not facts** — the authoritative Tuck
+  flags come from you, via `scripts/verify.py` against your alumni directory. (No
+  logged-in LinkedIn scraping is used or recommended; it risks your account.)
 - **The `(SAMPLE)` rows are fictional** and exist only to demo the pipeline. Purge with
   `python scripts/seed_sample.py --purge`.
 - LinkedIn/Indeed/Glassdoor scraping is against those sites' ToS and can get an IP
