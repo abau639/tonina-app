@@ -34,7 +34,7 @@ except Exception:
     pass
 
 from scripts import db
-from scripts.sources import consider_board, firstround_talent, linkedin, indeed, glassdoor
+from scripts.sources import consider_board, firstround_talent, linkedin, indeed, glassdoor, jobspy_source
 
 
 import json
@@ -44,23 +44,31 @@ def _make_board_source(slug: str) -> Callable:
     return lambda k, l: consider_board.fetch_jobs(slug, k, l)
 
 
+def _make_jobspy_source(site: str) -> Callable:
+    return lambda k, l: jobspy_source.fetch_jobs(site, k, l)
+
+
 # Built-in Consider-powered VC boards (tested baseline). slug == source column.
 _BUILTIN_BOARDS = {
     "a16z": "vc", "sequoia": "vc", "vmg": "vc",
     "kleiner_perkins": "vc", "firstround_public": "vc",
 }
 
+# Aggregator sites, scraped via the maintained JobSpy library (pip: python-jobspy).
+_JOBSPY_SITES = ["linkedin", "indeed", "glassdoor", "google", "zip_recruiter"]
+
 # Each registered source is a callable: (keywords, locations) -> list[dict].
 SOURCES: dict[str, Callable] = {
     slug: _make_board_source(slug) for slug in _BUILTIN_BOARDS
 }
+SOURCES.update({site: _make_jobspy_source(site) for site in _JOBSPY_SITES})
 SOURCES.update({
     # Logged-in First Round talent network.
     "firstround": lambda k, l: firstround_talent.fetch_jobs(k, l),
-    # Public job aggregators (ToS-violating direct scraping; user accepted risk).
-    "linkedin": lambda k, l: linkedin.fetch_jobs(k, l),
-    "indeed": lambda k, l: indeed.fetch_jobs(k, l),
-    "glassdoor": lambda k, l: glassdoor.fetch_jobs(k, l),
+    # Legacy hand-rolled scrapers, kept as a fallback if JobSpy ever regresses.
+    "linkedin_legacy": lambda k, l: linkedin.fetch_jobs(k, l),
+    "indeed_legacy": lambda k, l: indeed.fetch_jobs(k, l),
+    "glassdoor_legacy": lambda k, l: glassdoor.fetch_jobs(k, l),
 })
 
 # Board -> type map for group aliases (vc / pe / boards).
@@ -93,9 +101,13 @@ GROUPS: dict[str, list[str]] = {
     "vc": [s for s, t in _BOARD_TYPES.items() if t in ("vc", "growth")],
     "pe": [s for s, t in _BOARD_TYPES.items() if t in ("pe", "growth")],
     "boards": list(_BOARD_TYPES.keys()),
+    "aggregators": list(_JOBSPY_SITES),
 }
 
-DEFAULT_SOURCES = list(SOURCES.keys())
+# `--sources all` runs the recommended set: JobSpy aggregators + every configured
+# board. It excludes the *_legacy duplicates and firstround (needs a login).
+_EXCLUDE_FROM_ALL = set(["firstround", "linkedin_legacy", "indeed_legacy", "glassdoor_legacy"])
+DEFAULT_SOURCES = [s for s in SOURCES.keys() if s not in _EXCLUDE_FROM_ALL]
 
 
 def _parse_csv(arg: str | None) -> list[str]:

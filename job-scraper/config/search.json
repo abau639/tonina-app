@@ -4,6 +4,10 @@
   "include_remote": true,
   "industry": "broad",
   "note": "Industry is intentionally broad — capture everything finance in-radius and let the profile-fit ranking sort it.",
+  "results_wanted": 50,
+  "hours_old": null,
+  "country_indeed": "usa",
+  "jobspy_note": "results_wanted = max postings per site per keyword; hours_old = null means no recency filter (set e.g. 168 for the last week); country_indeed scopes Indeed/Glassdoor. These drive the JobSpy aggregator sources.",
   "keywords": [
     "strategic finance",
     "FP&A",

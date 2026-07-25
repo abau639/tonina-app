@@ -47,6 +47,9 @@ def upsert_jobs(jobs: Iterable[dict]) -> tuple[int, int]:
         cur = conn.cursor()
         for job in jobs:
             total += 1
+            # is_remote defaults to 0 (matches the schema default) when the source
+            # doesn't tell us; JobSpy provides a real boolean.
+            is_remote = 1 if job.get("is_remote") else 0
             payload = (
                 job.get("source"),
                 job.get("source_url"),
@@ -59,6 +62,12 @@ def upsert_jobs(jobs: Iterable[dict]) -> tuple[int, int]:
                 job.get("company_size_employees"),
                 job.get("company_revenue"),
                 job.get("company_stage"),
+                # Structured fields some sources (e.g. JobSpy) provide directly.
+                job.get("salary_min"),
+                job.get("salary_max"),
+                job.get("salary_currency"),
+                job.get("salary_period"),
+                is_remote,
                 json.dumps(job.get("raw_json")) if job.get("raw_json") is not None else None,
             )
             try:
@@ -68,28 +77,39 @@ def upsert_jobs(jobs: Iterable[dict]) -> tuple[int, int]:
                         source, source_url, title, company, location,
                         description, salary_raw, posted_date,
                         company_size_employees, company_revenue, company_stage,
+                        salary_min, salary_max, salary_currency, salary_period, is_remote,
                         raw_json
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     payload,
                 )
                 new += 1
             except sqlite3.IntegrityError:
                 # Duplicate (company, title, source_url) — refresh last_seen_at
-                # and backfill any company metadata that wasn't previously set.
+                # and backfill any metadata that wasn't previously set.
                 cur.execute(
                     """
                     UPDATE jobs
                     SET last_seen_at = CURRENT_TIMESTAMP,
                         company_size_employees = COALESCE(company_size_employees, ?),
                         company_revenue        = COALESCE(company_revenue,        ?),
-                        company_stage          = COALESCE(company_stage,          ?)
+                        company_stage          = COALESCE(company_stage,          ?),
+                        salary_min             = COALESCE(salary_min,             ?),
+                        salary_max             = COALESCE(salary_max,             ?),
+                        salary_currency        = COALESCE(salary_currency,        ?),
+                        salary_period          = COALESCE(salary_period,          ?),
+                        is_remote              = MAX(is_remote, ?)
                     WHERE company = ? AND title = ? AND source_url = ?
                     """,
                     (
                         job.get("company_size_employees"),
                         job.get("company_revenue"),
                         job.get("company_stage"),
+                        job.get("salary_min"),
+                        job.get("salary_max"),
+                        job.get("salary_currency"),
+                        job.get("salary_period"),
+                        is_remote,
                         job.get("company"),
                         job.get("title"),
                         job.get("source_url"),
@@ -115,10 +135,6 @@ def update_extracted(job_id: int, fields: dict) -> None:
     """
     role_cols = [
         "brief_description",
-        "salary_min",
-        "salary_max",
-        "salary_currency",
-        "salary_period",
         "equity_offered",
         "bonus_text",
         "required_experience_years",
@@ -127,7 +143,13 @@ def update_extracted(job_id: int, fields: dict) -> None:
         "preferred_degrees",
         "start_date",
     ]
+    # Only filled if currently NULL — a scraper that provided structured salary
+    # (e.g. JobSpy) or company metadata is trusted over LLM inference.
     coalesced_cols = [
+        "salary_min",
+        "salary_max",
+        "salary_currency",
+        "salary_period",
         "company_size_employees",
         "company_revenue",
         "company_stage",

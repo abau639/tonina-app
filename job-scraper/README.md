@@ -3,8 +3,9 @@
 A two-layer pipeline that turns "what finance jobs exist near me, and which ones
 should I chase given my profile?" into a ranked, queryable database and a report.
 
-Built on top of the `job-scraper` skill (the raw scrapers are vendored under
-`scripts/sources/`) and extended with the pieces this project actually asked for:
+Scraping uses **JobSpy** (`python-jobspy`) for the mainstream aggregators and our own
+`consider_board` scraper for the VC/PE portfolio boards (see "Scraping engine" below),
+extended with the company-intelligence and ranking layers this project asked for:
 
 | Ask | Where it lives |
 |---|---|
@@ -153,6 +154,36 @@ python scripts/report_opportunities.py
 `enrich_companies.py` still populates ownership / stage / PE and a *best-guess* C-suite
 (so the worklist tells you who to look up), but the Tuck flag you act on is the one
 **you** verify here — recorded with `confidence: high`, `source: tuck-directory-verified`.
+
+## Scraping engine: JobSpy (aggregators) + Consider boards (VC/PE)
+
+The mainstream boards are scraped by **[JobSpy](https://github.com/speedyapply/JobSpy)**
+(`pip install python-jobspy`, MIT) — a maintained library that we *depend on* rather
+than fork, so when LinkedIn/Indeed change their markup, an upgrade fixes it instead of us.
+A thin adapter (`scripts/sources/jobspy_source.py`) maps its output into our schema; a
+`pip install -U python-jobspy` is the whole maintenance story. The old hand-rolled
+scrapers are kept as `linkedin_legacy` / `indeed_legacy` / `glassdoor_legacy` fallbacks.
+
+JobSpy does **not** cover the VC/PE portfolio boards — those stay on our `consider_board`
+scraper. Both plug into the same `--sources` interface:
+
+| Source group | Slugs | Engine |
+|---|---|---|
+| `aggregators` | linkedin, indeed, glassdoor, google, zip_recruiter | JobSpy |
+| `vc` | a16z, sequoia, greylock, insightpartners, … | consider_board |
+| `pe` | ta, summitpartners, vista, thomabravo, … | consider_board |
+
+JobSpy also gives us data the old scrapers didn't: a native `distance` (50-mi radius),
+`is_remote`, annualized `salary_min/max`, and `company_num_employees` / `company_revenue`
+— so those land structured, no LLM pass needed (the extraction step only *backfills* pay
+when a listing didn't post it). Knobs live in `config/search.json`
+(`results_wanted`, `hours_old`, `country_indeed`).
+
+```bash
+python scripts/scrape.py --sources aggregators --keywords "strategic finance,FP&A"   # JobSpy sites
+python scripts/scrape.py --sources aggregators,vc,pe --keywords "finance"             # everything
+python scripts/scrape.py --sources linkedin_legacy --keywords "FP&A"                  # old scraper fallback
+```
 
 ## Toggles: remote, compensation, and more boards
 

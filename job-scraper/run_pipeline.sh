@@ -9,9 +9,10 @@ CENTER="${CENTER:-Miami, FL}"
 RADIUS="${RADIUS:-50}"
 REMOTE="${REMOTE:-include}"   # include | exclude | only
 KEYWORDS="${KEYWORDS:-strategic finance,FP&A,finance manager,director of finance,head of finance,vp finance,CFO,finance business partner}"
-# 'vc' and 'pe' are group aliases that expand to every board in config/boards.json.
+# 'aggregators' = JobSpy sites (linkedin,indeed,glassdoor,google,zip_recruiter).
+# 'vc'/'pe' = the VC/PE portfolio boards from config/boards.json.
 # This is broad (many boards) and slower; trim to specific slugs to go faster.
-SOURCES="${SOURCES:-linkedin,indeed,glassdoor,vc,pe}"
+SOURCES="${SOURCES:-aggregators,vc,pe}"
 
 echo "==> init db"
 python scripts/init_db.py
