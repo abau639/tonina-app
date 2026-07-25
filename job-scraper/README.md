@@ -1,0 +1,129 @@
+# Local Opportunities — Job Scraper + Company Intelligence
+
+A two-layer pipeline that turns "what finance jobs exist near me, and which ones
+should I chase given my profile?" into a ranked, queryable database and a report.
+
+Built on top of the `job-scraper` skill (the raw scrapers are vendored under
+`scripts/sources/`) and extended with the pieces this project actually asked for:
+
+| Ask | Where it lives |
+|---|---|
+| Jobs within **50 miles** of a city | `scripts/lib/metro.py` (haversine radius → location list) |
+| **Industry / role** filter | `--keywords` on the scraper; `config/search.json` |
+| A **family of responsibilities** that's easily tracked | `responsibility_families` taxonomy + `scripts/extract_responsibilities.py` |
+| **C-suite profiles** + LinkedIn summaries | `executives` table + `scripts/enrich_companies.py` |
+| **Tuck MBA alumni** flag | `executives.is_tuck_alum` → rolled up to `companies.has_tuck_alum` |
+| **Stage / series / PE-owned** | `companies.ownership_type`, `company_stage`, `pe_sponsor`, `last_round` |
+| **Local opportunities for *your* profile** | `scripts/report_opportunities.py` → ranked report |
+
+Target for this build: **Miami, FL · 50 mi · Strategic Finance / FP&A + Finance leadership.**
+Configured in `config/search.json` and `config/profile.json` — edit those to retarget.
+
+---
+
+## ⚠️ Why the live scrape can't run in Claude's cloud environment
+
+This tool was authored in a Claude Code cloud session whose **egress policy blocks
+job sites** (LinkedIn, Indeed, Glassdoor, and the VC boards all return `403` at the
+proxy) and which has **no `ANTHROPIC_API_KEY`**. So the two network/LLM stages —
+scraping and enrichment — are built and tested but were **not run against live data
+here**. Run them on your own machine (or any environment with open egress + a key),
+where the commands below work as written.
+
+The profile-fit **report is pure Python** and runs anywhere once the DB has rows.
+To see the whole thing working offline right now:
+
+```bash
+python3 scripts/init_db.py
+python3 scripts/seed_sample.py           # inserts clearly-fictional "(SAMPLE)" rows
+python3 -c "from scripts import db; db.annotate_distances('Miami, FL', 50)"
+python3 scripts/report_opportunities.py  # writes out/opportunities.{md,html}
+python3 scripts/seed_sample.py --purge   # remove the sample rows when done
+```
+
+---
+
+## Setup (local machine)
+
+```bash
+cd job-scraper
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m playwright install chromium          # for the VC boards + fallbacks
+cp .env.example .env                            # then add ANTHROPIC_API_KEY
+python scripts/init_db.py
+```
+
+`.env` holds `ANTHROPIC_API_KEY` (enrichment + extraction) and optional scraper
+knobs like `REQUEST_SLEEP_SECONDS`. It is gitignored — never commit it.
+
+## Run the full pipeline
+
+```bash
+# 0. Turn "50 mi around Miami" into the location list (inspect it)
+python scripts/lib/metro.py --center "Miami, FL" --radius 50
+
+# 1. Scrape jobs (LinkedIn/Indeed/Glassdoor carry the Miami metro volume;
+#    the VC boards carry the cleanest company_stage data)
+python scripts/scrape.py \
+  --sources linkedin,indeed,glassdoor,a16z,sequoia,vmg,kleiner_perkins,firstround_public \
+  --keywords "strategic finance,FP&A,finance manager,director of finance,head of finance,vp finance,CFO" \
+  --locations "$(python scripts/lib/metro.py --center 'Miami, FL' --radius 50 --no-remote --json | python -c 'import sys,json;print(",".join(json.load(sys.stdin)["locations"]))')"
+
+# 2. LLM pass: salaries, degrees, experience (fills the jobs table)
+python scripts/extract_fields.py
+
+# 3. Map each job onto the trackable responsibility families
+python scripts/extract_responsibilities.py
+
+# 4. Company intelligence: ownership / stage / PE + C-suite + Tuck flags
+python scripts/enrich_companies.py
+
+# 5. Annotate distance-from-center, then rank against your profile
+python -c "from scripts import db; db.annotate_distances('Miami, FL', 50)"
+python scripts/report_opportunities.py --top 50
+open out/opportunities.html
+```
+
+`run_pipeline.sh` wraps steps 1–5 with the Miami defaults.
+
+## Query it directly
+
+```sql
+-- Series A/B companies hiring finance in-radius
+SELECT j.title, j.company, c.company_stage, c.ownership_type, j.distance_miles
+FROM jobs j JOIN companies c ON c.id = j.company_id
+WHERE c.company_stage IN ('series-a','series-b') AND j.distance_miles <= 50;
+
+-- Every company where a Tuck alum sits in the C-suite (your warm intros)
+SELECT c.name, e.name, e.title, e.tuck_detail
+FROM companies c JOIN executives e ON e.company_id = c.id
+WHERE e.is_tuck_alum = 1;
+
+-- What the local market wants, by responsibility family
+SELECT rf.name, COUNT(*) n FROM job_responsibilities jr
+JOIN responsibility_families rf ON rf.id = jr.family_id
+GROUP BY rf.name ORDER BY n DESC;
+
+-- PE-owned employers and their sponsors
+SELECT name, pe_sponsor, last_round FROM companies WHERE ownership_type = 'pe-owned';
+```
+
+## Schema
+
+See `schema.sql`. Layers: `jobs` + `scrape_runs` (raw scrape, from the skill),
+then `companies`, `executives`, `responsibility_families` + `job_responsibilities`,
+and `opportunity_scores` (the ranking snapshot).
+
+## Honesty about the data
+
+- **`enrich_companies.py` is best-effort.** It grounds on the company's own site when
+  reachable and tags every executive with a confidence level, with hard instructions
+  not to invent people or alumni claims. Treat `confidence: low` execs and Tuck flags
+  as **leads to verify**, not facts. For high-reliability C-suite data, wire in a real
+  source (a logged-in LinkedIn session, Clearbit/PDL, PitchBook) — the `executives`
+  table is the drop-in target.
+- **The `(SAMPLE)` rows are fictional** and exist only to demo the pipeline. Purge with
+  `python scripts/seed_sample.py --purge`.
+- LinkedIn/Indeed/Glassdoor scraping is against those sites' ToS and can get an IP
+  rate-limited. The scrapers sleep between requests; keep `REQUEST_SLEEP_SECONDS` sane.

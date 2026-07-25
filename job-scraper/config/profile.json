@@ -1,0 +1,54 @@
+{
+  "profile_key": "alfredo-stratfin-2026",
+  "name": "Alfredo",
+  "headline": "Strategic Finance x engineering depth (Tuck MBA)",
+  "summary": "Strategic Finance / FP&A leader who pairs finance rigor with hands-on engineering. Builds the models, the data pipelines behind them, and the board narrative on top.",
+  "education": [
+    { "school": "Tuck School of Business at Dartmouth", "degree": "MBA", "is_tuck": true }
+  ],
+  "network_signals": {
+    "tuck_alum_boost": 25,
+    "dartmouth_alum_boost": 10,
+    "note": "Companies with a Tuck (or broader Dartmouth) alum in the C-suite are warm intros. This is the core 'benefit from knowing my profile' lever."
+  },
+  "target_role_families": ["strategic-finance", "fpa-planning", "forecasting-modeling", "mgmt-board-reporting"],
+  "target_titles_include": [
+    "strategic finance", "fp&a", "fpa", "financial planning", "finance business partner",
+    "finance manager", "director of finance", "head of finance", "vp finance",
+    "vp of finance", "vice president finance", "corporate finance", "cfo", "chief financial officer",
+    "finance lead", "senior finance"
+  ],
+  "target_titles_exclude": [
+    "financial advisor", "wealth advisor", "insurance", "mortgage loan officer",
+    "financial representative", "tax preparer", "bookkeeper", "accounts payable clerk",
+    "billing specialist", "collections"
+  ],
+  "seniority_targets": ["manager", "director", "vp", "c-level"],
+  "seniority_weight": { "ic": 0.4, "manager": 0.8, "director": 1.0, "vp": 1.0, "c-level": 0.9 },
+  "strength_families": {
+    "strategic-finance": 1.0,
+    "forecasting-modeling": 1.0,
+    "fpa-planning": 0.95,
+    "mgmt-board-reporting": 0.9,
+    "systems-data": 0.9,
+    "business-partnering": 0.85,
+    "unit-economics": 0.85,
+    "treasury-capital": 0.6,
+    "accounting-close": 0.5,
+    "leadership-team": 0.8
+  },
+  "stage_preference": {
+    "note": "Neutral on stage, but surface it. Slight lean to venture-backed growth-stage where a strategic-finance hire has the most leverage.",
+    "series-a": 0.8, "series-b": 1.0, "series-c": 1.0, "series-d": 0.9,
+    "growth": 1.0, "late-stage": 0.9, "public": 0.7, "pe-owned": 0.9,
+    "seed": 0.6, "pre-seed": 0.4, "private": 0.7, "unknown": 0.6
+  },
+  "location": { "center": "Miami, FL", "radius_miles": 50, "include_remote": true },
+  "weights": {
+    "role": 30,
+    "responsibility": 30,
+    "location": 15,
+    "stage": 10,
+    "network": 15
+  }
+}

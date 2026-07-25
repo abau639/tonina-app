@@ -1,0 +1,24 @@
+{
+  "center_city": "Miami, FL",
+  "radius_miles": 50,
+  "include_remote": true,
+  "industry": "broad",
+  "note": "Industry is intentionally broad — capture everything finance in-radius and let the profile-fit ranking sort it.",
+  "keywords": [
+    "strategic finance",
+    "FP&A",
+    "financial planning and analysis",
+    "finance manager",
+    "director of finance",
+    "head of finance",
+    "vp finance",
+    "corporate finance",
+    "CFO",
+    "finance business partner"
+  ],
+  "sources": {
+    "recommended": ["linkedin", "indeed", "glassdoor"],
+    "vc_boards": ["a16z", "sequoia", "vmg", "kleiner_perkins", "firstround_public"],
+    "note": "VC boards are national/remote-heavy and rarely Miami-specific, but they carry the cleanest company_stage data. LinkedIn/Indeed/Glassdoor carry the Miami metro volume."
+  }
+}

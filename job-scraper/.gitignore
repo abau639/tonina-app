@@ -1,0 +1,10 @@
+# Generated / local artifacts — do not commit
+jobs.db
+jobs.db-journal
+jobs.db-wal
+out/
+.env
+.venv/
+.playwright-state/
+__pycache__/
+*.pyc
