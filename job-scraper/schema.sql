@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     salary_max INTEGER,
     salary_currency TEXT,
     salary_period TEXT,
+    equity_offered TEXT,                 -- e.g. "0.1%-0.3%", "equity", or null
+    bonus_text TEXT,                     -- e.g. "15% target bonus", "sign-on", or null
     required_experience_years REAL,
     required_experience_text TEXT,
     required_degrees TEXT,               -- JSON array
@@ -47,6 +49,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     ownership_type TEXT,                 -- vc-backed | pe-owned | public | bootstrapped | private-other | unknown
     radius_center TEXT,                  -- e.g. "Miami, FL" — the search anchor this job matched
     distance_miles REAL,                 -- approx miles from radius_center (best-effort)
+    is_remote INTEGER NOT NULL DEFAULT 0,-- 1 if the listing is remote/anywhere
     seniority TEXT,                      -- ic | manager | director | vp | c-level (LLM-extracted)
     role_family TEXT,                    -- fp&a | strategic-finance | controller | ... (LLM-extracted)
 

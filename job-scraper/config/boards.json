@@ -1,0 +1,27 @@
+{
+  "note": "Additional VC / growth / PE portfolio job boards to scrape, on top of the five built-in ones (a16z, sequoia, vmg, kleiner_perkins, firstround_public). Most VC talent boards run on the same 'Consider' platform (jobs.<firm>.com), which the consider_board scraper reads generically. Add or remove freely. URLs are best-effort — if one 404s, fix the url here (open the firm's 'jobs'/'talent'/'careers' board in a browser and copy the real path). Non-Consider boards may not parse; that source will just report an error and the others continue.",
+  "groups": {
+    "vc": "all boards tagged vc or growth (+ the built-in VC boards)",
+    "pe": "all boards tagged pe or growth",
+    "boards": "every configured board, built-in and custom"
+  },
+  "boards": [
+    { "slug": "greylock",        "company": "Greylock",           "url": "https://jobs.greylock.com/jobs",         "type": "vc" },
+    { "slug": "bessemer",        "company": "Bessemer Venture Partners", "url": "https://jobs.bvp.com/jobs",       "type": "vc" },
+    { "slug": "generalcatalyst", "company": "General Catalyst",    "url": "https://jobs.generalcatalyst.com/jobs",  "type": "vc" },
+    { "slug": "lightspeed",      "company": "Lightspeed",          "url": "https://jobs.lsvp.com/jobs",             "type": "vc" },
+    { "slug": "accel",           "company": "Accel",               "url": "https://jobs.accel.com/jobs",            "type": "vc" },
+    { "slug": "indexventures",   "company": "Index Ventures",      "url": "https://jobs.indexventures.com/jobs",    "type": "vc" },
+    { "slug": "nea",             "company": "NEA",                 "url": "https://jobs.nea.com/jobs",              "type": "vc" },
+    { "slug": "foundersfund",    "company": "Founders Fund",       "url": "https://jobs.foundersfund.com/jobs",     "type": "vc" },
+    { "slug": "redpoint",        "company": "Redpoint",            "url": "https://jobs.redpoint.com/jobs",         "type": "vc" },
+    { "slug": "insightpartners", "company": "Insight Partners",    "url": "https://jobs.insightpartners.com/jobs",  "type": "growth" },
+    { "slug": "battery",         "company": "Battery Ventures",    "url": "https://jobs.battery.com/jobs",          "type": "growth" },
+    { "slug": "ivp",             "company": "IVP",                 "url": "https://jobs.ivp.com/jobs",              "type": "growth" },
+    { "slug": "ta",              "company": "TA Associates",       "url": "https://jobs.ta.com/jobs",               "type": "pe" },
+    { "slug": "summitpartners",  "company": "Summit Partners",     "url": "https://jobs.summitpartners.com/jobs",   "type": "pe" },
+    { "slug": "generalatlantic", "company": "General Atlantic",    "url": "https://jobs.generalatlantic.com/jobs",  "type": "pe" },
+    { "slug": "vista",           "company": "Vista Equity Partners","url": "https://jobs.vistaequitypartners.com/jobs", "type": "pe" },
+    { "slug": "thomabravo",      "company": "Thoma Bravo",         "url": "https://jobs.thomabravo.com/jobs",       "type": "pe" }
+  ]
+}

@@ -119,6 +119,8 @@ def update_extracted(job_id: int, fields: dict) -> None:
         "salary_max",
         "salary_currency",
         "salary_period",
+        "equity_offered",
+        "bonus_text",
         "required_experience_years",
         "required_experience_text",
         "required_degrees",
@@ -382,6 +384,20 @@ def mark_responsibilities_failed(job_id: int) -> None:
 
 
 # ---------- location annotation ----------
+
+
+def annotate_remote() -> int:
+    """Set jobs.is_remote from the location text. Returns count flagged remote."""
+    from scripts.sources.base import _location_is_remote
+
+    flagged = 0
+    with connect() as conn:
+        rows = conn.execute("SELECT id, location FROM jobs").fetchall()
+        for r in rows:
+            remote = 1 if _location_is_remote(r["location"] or "") else 0
+            conn.execute("UPDATE jobs SET is_remote = ? WHERE id = ?", (remote, r["id"]))
+            flagged += remote
+    return flagged
 
 
 def annotate_distances(center_city: str, radius_miles: float) -> int:

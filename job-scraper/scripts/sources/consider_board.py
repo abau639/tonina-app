@@ -38,6 +38,12 @@ BOARDS = {
 }
 
 
+def register_board(slug: str, company: str, url: str) -> None:
+    """Add a board at runtime (e.g. from config/boards.json). Any Consider-powered
+    board works with the generic interceptor; slug becomes the source column."""
+    BOARDS[slug] = (company, url)
+
+
 def fetch_jobs(
     board_slug: str,
     keywords: Iterable[str] | None = None,

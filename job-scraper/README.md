@@ -14,6 +14,9 @@ Built on top of the `job-scraper` skill (the raw scrapers are vendored under
 | **C-suite profiles** + LinkedIn summaries | `executives` table + `scripts/enrich_companies.py` |
 | **Tuck MBA alumni** flag | `executives.is_tuck_alum` → rolled up to `companies.has_tuck_alum`; verified by hand via `scripts/verify.py` against your alumni directory |
 | **Stage / series / PE-owned** | `companies.ownership_type`, `company_stage`, `pe_sponsor`, `last_round` |
+| **Salary + comp** | `jobs.salary_min/max/currency/period` plus `equity_offered`, `bonus_text` (LLM-extracted); a compensation snapshot in the report |
+| **Remote toggle** | `jobs.is_remote` flag + `report_opportunities.py --remote include\|exclude\|only` (and `REMOTE=` in the pipeline) |
+| **More VC / PE boards** | `config/boards.json` registry + `--sources vc\|pe\|boards` group aliases |
 | **Local opportunities for *your* profile** | `scripts/report_opportunities.py` → ranked report |
 
 Target for this build: **Miami, FL · 50 mi · Strategic Finance / FP&A + Finance leadership.**
@@ -119,6 +122,28 @@ python scripts/report_opportunities.py
 (so the worklist tells you who to look up), but the Tuck flag you act on is the one
 **you** verify here — recorded with `confidence: high`, `source: tuck-directory-verified`.
 
+## Toggles: remote, compensation, and more boards
+
+```bash
+# Remote roles: keep them (default), drop them, or see only remote
+python scripts/report_opportunities.py --remote include
+python scripts/report_opportunities.py --remote exclude
+python scripts/report_opportunities.py --remote only
+REMOTE=only ./run_pipeline.sh              # same toggle through the pipeline
+
+# Compensation is captured automatically by extract_fields.py:
+#   base salary_min/max + equity_offered + bonus_text, plus a
+#   "Compensation snapshot" (avg base by stage) in the report.
+
+# Search more VC / PE portfolio boards. Group aliases expand to config/boards.json:
+python scripts/scrape.py --sources vc      --keywords "FP&A,strategic finance"   # all VC + growth boards
+python scripts/scrape.py --sources pe      --keywords "finance"                  # PE / growth-equity boards
+python scripts/scrape.py --sources boards                                        # every configured board
+python scripts/scrape.py --sources insightpartners,battery,greylock              # specific ones
+# Add your own: edit config/boards.json (slug, company, url, type). Most VC talent
+# boards run on the 'Consider' platform (jobs.<firm>.com) and parse out of the box.
+```
+
 ## Query it directly
 
 ```sql
@@ -139,6 +164,13 @@ GROUP BY rf.name ORDER BY n DESC;
 
 -- PE-owned employers and their sponsors
 SELECT name, pe_sponsor, last_round FROM companies WHERE ownership_type = 'pe-owned';
+
+-- Compensation: base range + equity/bonus for the roles that quote pay
+SELECT title, company, salary_min, salary_max, equity_offered, bonus_text
+FROM jobs WHERE salary_min IS NOT NULL ORDER BY salary_max DESC;
+
+-- Remote roles only, on-target and finance-adjacent
+SELECT title, company, salary_min, salary_max FROM jobs WHERE is_remote = 1;
 ```
 
 ## Schema

@@ -75,6 +75,8 @@ Return a JSON object with these exact keys. Use null when the information is not
   "salary_max":        <integer, annualized, or null>,
   "salary_currency":   "<3-letter code like USD, EUR, GBP, or null>",
   "salary_period":     "<one of: year, month, hour, contract, or null>",
+  "equity_offered":    "<short string if equity/options/RSUs are mentioned, e.g. '0.1%-0.3%' or 'equity offered', else null>",
+  "bonus_text":        "<short string if a bonus/commission/sign-on is mentioned, e.g. '15% target bonus', else null>",
   "required_experience_years": <number — minimum years required, e.g. 3 or 5.0, or null>,
   "required_experience_text":  "<the exact phrase from the description, e.g. '5+ years of ML engineering', or null>",
   "required_degrees":  <JSON array of degree names that are REQUIRED, e.g. ["Bachelor's"], or null. Use the strings: "High School", "Associate's", "Bachelor's", "Master's", "MBA", "PhD", "JD", "MD". Empty array [] if the posting explicitly says no degree required.>,
@@ -118,6 +120,8 @@ def normalize_extracted(data: dict) -> dict:
     out["salary_max"] = _as_int(data.get("salary_max"))
     out["salary_currency"] = _as_str(data.get("salary_currency"))
     out["salary_period"] = _as_str(data.get("salary_period"))
+    out["equity_offered"] = _as_str(data.get("equity_offered"))
+    out["bonus_text"] = _as_str(data.get("bonus_text"))
     out["required_experience_years"] = _as_float(data.get("required_experience_years"))
     out["required_experience_text"] = _as_str(data.get("required_experience_text"))
     out["required_degrees"] = _as_json_array(data.get("required_degrees"))

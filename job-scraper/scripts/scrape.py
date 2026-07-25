@@ -37,20 +37,62 @@ from scripts import db
 from scripts.sources import consider_board, firstround_talent, linkedin, indeed, glassdoor
 
 
+import json
+
+
+def _make_board_source(slug: str) -> Callable:
+    return lambda k, l: consider_board.fetch_jobs(slug, k, l)
+
+
+# Built-in Consider-powered VC boards (tested baseline). slug == source column.
+_BUILTIN_BOARDS = {
+    "a16z": "vc", "sequoia": "vc", "vmg": "vc",
+    "kleiner_perkins": "vc", "firstround_public": "vc",
+}
+
 # Each registered source is a callable: (keywords, locations) -> list[dict].
 SOURCES: dict[str, Callable] = {
-    # Consider-powered VC boards. board_slug doubles as the source-column value.
-    "a16z": lambda k, l: consider_board.fetch_jobs("a16z", k, l),
-    "sequoia": lambda k, l: consider_board.fetch_jobs("sequoia", k, l),
-    "vmg": lambda k, l: consider_board.fetch_jobs("vmg", k, l),
-    "kleiner_perkins": lambda k, l: consider_board.fetch_jobs("kleiner_perkins", k, l),
-    "firstround_public": lambda k, l: consider_board.fetch_jobs("firstround_public", k, l),
+    slug: _make_board_source(slug) for slug in _BUILTIN_BOARDS
+}
+SOURCES.update({
     # Logged-in First Round talent network.
     "firstround": lambda k, l: firstround_talent.fetch_jobs(k, l),
     # Public job aggregators (ToS-violating direct scraping; user accepted risk).
     "linkedin": lambda k, l: linkedin.fetch_jobs(k, l),
     "indeed": lambda k, l: indeed.fetch_jobs(k, l),
     "glassdoor": lambda k, l: glassdoor.fetch_jobs(k, l),
+})
+
+# Board -> type map for group aliases (vc / pe / boards).
+_BOARD_TYPES: dict[str, str] = dict(_BUILTIN_BOARDS)
+
+
+def _load_config_boards() -> None:
+    """Register extra VC/growth/PE boards from config/boards.json, if present."""
+    cfg = Path(__file__).resolve().parent.parent / "config" / "boards.json"
+    if not cfg.exists():
+        return
+    try:
+        data = json.loads(cfg.read_text())
+    except Exception as e:
+        print(f"  (could not read config/boards.json: {e})")
+        return
+    for b in data.get("boards", []):
+        slug, company, url = b.get("slug"), b.get("company"), b.get("url")
+        if not (slug and company and url):
+            continue
+        consider_board.register_board(slug, company, url)
+        SOURCES[slug] = _make_board_source(slug)
+        _BOARD_TYPES[slug] = b.get("type", "vc")
+
+
+_load_config_boards()
+
+# Group aliases the user can pass to --sources.
+GROUPS: dict[str, list[str]] = {
+    "vc": [s for s, t in _BOARD_TYPES.items() if t in ("vc", "growth")],
+    "pe": [s for s, t in _BOARD_TYPES.items() if t in ("pe", "growth")],
+    "boards": list(_BOARD_TYPES.keys()),
 }
 
 DEFAULT_SOURCES = list(SOURCES.keys())
@@ -89,11 +131,22 @@ def main(argv: list[str]) -> int:
     if args.sources.strip().lower() == "all":
         source_names = DEFAULT_SOURCES
     else:
-        source_names = _parse_csv(args.sources)
+        requested = _parse_csv(args.sources)
+        # Expand group aliases (vc / pe / boards) into their member slugs.
+        source_names = []
+        for s in requested:
+            if s in GROUPS:
+                source_names.extend(GROUPS[s])
+            else:
+                source_names.append(s)
+        # De-dupe, preserve order.
+        seen = set()
+        source_names = [s for s in source_names if not (s in seen or seen.add(s))]
         unknown = [s for s in source_names if s not in SOURCES]
         if unknown:
             print(f"Unknown source(s): {', '.join(unknown)}")
             print(f"Known sources: {', '.join(SOURCES.keys())}")
+            print(f"Group aliases: {', '.join(GROUPS.keys())}")
             return 2
 
     keywords = _parse_csv(args.keywords)

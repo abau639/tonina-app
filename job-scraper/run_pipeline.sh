@@ -7,8 +7,11 @@ cd "$(dirname "$0")"
 
 CENTER="${CENTER:-Miami, FL}"
 RADIUS="${RADIUS:-50}"
+REMOTE="${REMOTE:-include}"   # include | exclude | only
 KEYWORDS="${KEYWORDS:-strategic finance,FP&A,finance manager,director of finance,head of finance,vp finance,CFO,finance business partner}"
-SOURCES="${SOURCES:-linkedin,indeed,glassdoor,a16z,sequoia,vmg,kleiner_perkins,firstround_public}"
+# 'vc' and 'pe' are group aliases that expand to every board in config/boards.json.
+# This is broad (many boards) and slower; trim to specific slugs to go faster.
+SOURCES="${SOURCES:-linkedin,indeed,glassdoor,vc,pe}"
 
 echo "==> init db"
 python scripts/init_db.py
@@ -30,8 +33,8 @@ python scripts/extract_responsibilities.py || echo "   (skipped/failed — needs
 echo "==> enrich companies (ownership / stage / PE / C-suite / Tuck)"
 python scripts/enrich_companies.py || echo "   (skipped/failed — needs ANTHROPIC_API_KEY)"
 
-echo "==> annotate distances + rank"
-python -c "from scripts import db; print('annotated', db.annotate_distances('$CENTER', $RADIUS), 'jobs')"
-python scripts/report_opportunities.py --top 50
+echo "==> annotate distances + remote + rank"
+python -c "from scripts import db; print('in-radius annotated:', db.annotate_distances('$CENTER', $RADIUS)); print('remote flagged:', db.annotate_remote())"
+python scripts/report_opportunities.py --top 50 --remote "$REMOTE"
 
 echo "==> done. open out/opportunities.html"

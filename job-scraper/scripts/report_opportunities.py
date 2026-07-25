@@ -75,15 +75,23 @@ def score_responsibility(job, profile) -> tuple[float, str, list[str]]:
     return round(num / den, 3), f"{len(fams)} families mapped", matched
 
 
+def _is_remote(job) -> bool:
+    try:
+        if job["is_remote"]:
+            return True
+    except (KeyError, IndexError):
+        pass
+    return "remote" in (job["location"] or "").lower()
+
+
 def score_location(job, profile) -> tuple[float, str]:
     radius = profile.get("location", {}).get("radius_miles", 50)
-    loc = (job["location"] or "").lower()
     d = job["distance_miles"]
     if d is not None:
         if d <= radius:
             return 1.0, f"~{d:g} mi from center"
         return 0.3, f"~{d:g} mi (outside {radius} mi)"
-    if "remote" in loc:
+    if _is_remote(job):
         return 0.7, "remote"
     return 0.5, "distance unknown"
 
@@ -160,10 +168,21 @@ def analytics() -> dict:
         n_companies = conn.execute("SELECT COUNT(*) c FROM companies").fetchone()["c"]
         n_enriched = conn.execute("SELECT COUNT(*) c FROM companies WHERE enriched = 1").fetchone()["c"]
         n_resp = conn.execute("SELECT COUNT(DISTINCT job_id) c FROM job_responsibilities").fetchone()["c"]
+        n_remote = conn.execute("SELECT COUNT(*) c FROM jobs WHERE is_remote = 1").fetchone()["c"]
+        n_comp = conn.execute("SELECT COUNT(*) c FROM jobs WHERE salary_min IS NOT NULL OR salary_max IS NOT NULL").fetchone()["c"]
+        # Base-comp snapshot by stage (only rows that quote pay).
+        comp = conn.execute(
+            """SELECT COALESCE(company_stage,'(unknown)') s, COUNT(*) n,
+                      CAST(AVG(salary_min) AS INT) avg_min, CAST(AVG(salary_max) AS INT) avg_max
+               FROM jobs WHERE salary_min IS NOT NULL OR salary_max IS NOT NULL
+               GROUP BY s ORDER BY avg_max DESC"""
+        ).fetchall()
+        n_equity = conn.execute("SELECT COUNT(*) c FROM jobs WHERE equity_offered IS NOT NULL").fetchone()["c"]
     return {
         "total_jobs": total_jobs, "families": fam, "ownership": own, "stage": stage,
         "tuck_companies": tuck_companies, "n_companies": n_companies,
-        "n_enriched": n_enriched, "n_resp": n_resp,
+        "n_enriched": n_enriched, "n_resp": n_resp, "n_remote": n_remote,
+        "n_comp": n_comp, "comp_by_stage": comp, "n_equity": n_equity,
     }
 
 
@@ -208,9 +227,17 @@ def render_markdown(profile, ranked, stats) -> str:
         sal = ""
         if job["salary_min"] or job["salary_max"]:
             sal = f" · 💰 {job['salary_currency'] or '$'}{job['salary_min'] or '?'}–{job['salary_max'] or '?'}"
+        comp_extra = " · ".join(
+            x for x in (
+                (f"equity: {job['equity_offered']}" if job["equity_offered"] else ""),
+                (f"bonus: {job['bonus_text']}" if job["bonus_text"] else ""),
+            ) if x
+        )
+        remote_tag = " · 🏠 remote" if _is_remote(job) else ""
         L.append(f"### {i}. {job['title']} — {job['company']}  ·  score {sc['total']}{flag}")
-        L.append(f"- **Where:** {job['location'] or '—'}{dist}")
-        L.append(f"- **Ownership / stage:** {own} · {stage}{pe}{sal}")
+        L.append(f"- **Where:** {job['location'] or '—'}{dist}{remote_tag}")
+        L.append(f"- **Ownership / stage:** {own} · {stage}{pe}{sal}"
+                 + (f" · {comp_extra}" if comp_extra else ""))
         L.append(f"- **Score breakdown:** role {sc['role']} · resp {sc['responsibility']} · "
                  f"loc {sc['location']} · stage {sc['stage']} · network {sc['network']}")
         if sc["matched_families"]:
@@ -238,6 +265,19 @@ def render_markdown(profile, ranked, stats) -> str:
             L.append(f"- {f['name']}: **{f['c']}**")
     else:
         L.append("_No responsibilities mapped yet — run extract_responsibilities.py._")
+
+    L.append("\n## Compensation snapshot\n")
+    L.append(f"_{stats['n_comp']} of {stats['total_jobs']} listings quote pay · "
+             f"{stats['n_equity']} mention equity · {stats['n_remote']} are remote._\n")
+    if stats["comp_by_stage"]:
+        L.append("| Stage | # with pay | avg base min | avg base max |")
+        L.append("|---|---|---|---|")
+        for r in stats["comp_by_stage"]:
+            lo = f"${r['avg_min']:,}" if r["avg_min"] else "—"
+            hi = f"${r['avg_max']:,}" if r["avg_max"] else "—"
+            L.append(f"| {r['s']} | {r['n']} | {lo} | {hi} |")
+    else:
+        L.append("_No listings quote pay yet — run extract_fields.py._")
 
     L.append("\n## Ownership & stage mix\n")
     L.append("**Ownership:** " + ", ".join(f"{o['o']} ({o['c']})" for o in stats["ownership"]))
@@ -271,6 +311,12 @@ def render_html(profile, ranked, stats) -> str:
         sal = ""
         if job["salary_min"] or job["salary_max"]:
             sal = f'<span class="pill">💰 {esc(job["salary_currency"] or "$")}{esc(job["salary_min"])}–{esc(job["salary_max"])}</span>'
+        if job["equity_offered"]:
+            sal += f'<span class="pill">📈 {e(str(job["equity_offered"]))}</span>'
+        if job["bonus_text"]:
+            sal += f'<span class="pill">🎯 {e(str(job["bonus_text"]))}</span>'
+        if _is_remote(job):
+            sal += '<span class="pill green">🏠 remote</span>'
         bars = "".join(
             f'<div class="bar"><span>{k}</span><div class="track"><div class="fill" style="width:{min(100, sc[k]/max(1,mx)*100):.0f}%"></div></div><b>{sc[k]}</b></div>'
             for k, mx in (("role", 30), ("responsibility", 30), ("location", 15), ("stage", 10), ("network", 15))
@@ -310,6 +356,12 @@ def render_html(profile, ranked, stats) -> str:
     fam_rows = "".join(
         f'<tr><td>{e(f["name"])}</td><td class="num">{f["c"]}</td></tr>' for f in stats["families"]
     ) or '<tr><td colspan="2" class="muted">Not mapped yet</td></tr>'
+    comp_rows = "".join(
+        f'<tr><td>{e(r["s"])}</td><td class="num">{r["n"]}</td>'
+        f'<td class="num">{("$%s"%format(r["avg_min"],",")) if r["avg_min"] else "—"}</td>'
+        f'<td class="num">{("$%s"%format(r["avg_max"],",")) if r["avg_max"] else "—"}</td></tr>'
+        for r in stats["comp_by_stage"]
+    ) or '<tr><td colspan="4" class="muted">No pay data yet — run extract_fields.py</td></tr>'
     own_rows = ", ".join(f'{e(o["o"])} <b>({o["c"]})</b>' for o in stats["ownership"])
     stage_rows = ", ".join(f'{e(s["s"])} <b>({s["c"]})</b>' for s in stats["stage"])
     tuck_rows = "".join(
@@ -370,7 +422,9 @@ ul.execs li {{ margin:5px 0; }}
 .panel h2 {{ font-size:15px; margin:0 0 10px; }}
 table {{ width:100%; border-collapse:collapse; font-size:13px; }}
 td {{ padding:4px 0; border-bottom:1px solid var(--line); }}
-td.num {{ text-align:right; font-weight:700; color:var(--pink); }}
+th {{ padding:4px 0; border-bottom:2px solid var(--line); font-size:11.5px; color:var(--muted); font-weight:600; }}
+td.num, th.num {{ text-align:right; }}
+td.num {{ font-weight:700; color:var(--pink); }}
 @media (max-width:640px) {{ .grid,.bars {{ grid-template-columns:1fr; }} .bar span{{width:110px;}} }}
 </style></head><body><div class="wrap">
 <h1>Local Opportunities — {e(profile.get('name',''))}</h1>
@@ -378,12 +432,15 @@ td.num {{ text-align:right; font-weight:700; color:var(--pink); }}
 <div class="stats">
   <div class="stat"><b>{stats['total_jobs']}</b>jobs in radius</div>
   <div class="stat"><b>{stats['n_companies']}</b>companies</div>
-  <div class="stat"><b>{stats['n_enriched']}</b>enriched</div>
+  <div class="stat"><b>{stats['n_remote']}</b>remote</div>
+  <div class="stat"><b>{stats['n_comp']}</b>quote pay</div>
   <div class="stat"><b>{len(stats['tuck_companies'])}</b>with Tuck alumni</div>
 </div>
 {pending_banner}
 <h2>Ranked opportunities</h2>
 {''.join(cards) if cards else '<p class="muted">No jobs in the database yet. Run the scrape first.</p>'}
+<div class="panel" style="margin-top:24px"><h2>Compensation snapshot <span class="muted" style="font-weight:400">· {stats['n_comp']}/{stats['total_jobs']} quote pay · {stats['n_equity']} mention equity</span></h2>
+  <table><thead><tr><th style="text-align:left">Stage</th><th class="num">#</th><th class="num">avg base min</th><th class="num">avg base max</th></tr></thead>{comp_rows}</table></div>
 <div class="grid">
   <div class="panel"><h2>What the market wants</h2><table>{fam_rows}</table></div>
   <div class="panel"><h2>Your warm intros (Tuck alumni)</h2><ul>{tuck_rows}</ul>
@@ -400,6 +457,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--top", type=int, default=50, help="Max opportunities to list")
     ap.add_argument("--min-score", type=float, default=0.0)
     ap.add_argument("--outdir", default="out")
+    ap.add_argument("--remote", choices=["include", "exclude", "only"], default="include",
+                    help="Remote roles: include (default), exclude them, or show only them")
     args = ap.parse_args(argv)
 
     profile = load_profile(args.profile)
@@ -415,8 +474,18 @@ def main(argv: list[str]) -> int:
         db.upsert_opportunity_score(job["id"], pkey, sc, sc["rationale"])
         scored.append((job, sc))
 
+    def remote_ok(job) -> bool:
+        r = _is_remote(job)
+        if args.remote == "only":
+            return r
+        if args.remote == "exclude":
+            return not r
+        return True
+
     scored.sort(key=lambda t: t[1]["total"], reverse=True)
-    ranked = [t for t in scored if t[1]["total"] >= args.min_score][: args.top]
+    ranked = [t for t in scored if t[1]["total"] >= args.min_score and remote_ok(t[0])][: args.top]
+    if args.remote != "include":
+        print(f"(remote filter: {args.remote})")
 
     stats = analytics()
     outdir = REPO_ROOT / args.outdir
