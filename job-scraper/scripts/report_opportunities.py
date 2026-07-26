@@ -39,6 +39,41 @@ from scripts import db
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
+def _fmt_date(ts) -> str | None:
+    """A timestamp/date string -> YYYY-MM-DD (drops any time component)."""
+    if not ts:
+        return None
+    s = str(ts).strip().replace("T", " ")
+    return s.split(" ")[0] or None
+
+
+def _days_since(ts) -> int | None:
+    d = _fmt_date(ts)
+    if not d:
+        return None
+    try:
+        then = datetime.strptime(d, "%Y-%m-%d")
+        return max(0, (datetime.now() - then).days)
+    except ValueError:
+        return None
+
+
+def _freshness(job) -> str:
+    """Human 'posted / first seen / last confirmed' line for a job."""
+    posted = _fmt_date(job["posted_date"])
+    first = _fmt_date(job["first_seen_at"])
+    last = _fmt_date(job["last_seen_at"])
+    parts = []
+    if posted:
+        parts.append(f"posted {posted}")
+    if first:
+        age = _days_since(first)
+        parts.append(f"first seen {first}" + (f" ({age}d ago)" if age is not None else ""))
+    if last and last != first:
+        parts.append(f"last confirmed {last}")
+    return " · ".join(parts)
+
+
 def load_profile(path: str) -> dict:
     return json.loads((REPO_ROOT / path if not Path(path).is_absolute() else Path(path)).read_text())
 
@@ -178,7 +213,14 @@ def analytics() -> dict:
                GROUP BY s ORDER BY avg_max DESC"""
         ).fetchall()
         n_equity = conn.execute("SELECT COUNT(*) c FROM jobs WHERE equity_offered IS NOT NULL").fetchone()["c"]
+        fresh_row = conn.execute(
+            "SELECT MAX(last_seen_at) refreshed, MIN(first_seen_at) oldest FROM jobs"
+        ).fetchone()
+        last_scrape = conn.execute("SELECT MAX(started_at) s FROM scrape_runs").fetchone()["s"]
     return {
+        "data_refreshed": fresh_row["refreshed"] if fresh_row else None,
+        "oldest_seen": fresh_row["oldest"] if fresh_row else None,
+        "last_scrape": last_scrape,
         "total_jobs": total_jobs, "families": fam, "ownership": own, "stage": stage,
         "tuck_companies": tuck_companies, "n_companies": n_companies,
         "n_enriched": n_enriched, "n_resp": n_resp, "n_remote": n_remote,
@@ -206,6 +248,11 @@ def render_markdown(profile, ranked, stats) -> str:
     L = []
     L.append(f"# Local Opportunities — {profile.get('name','')} · {loc.get('center','')} ({loc.get('radius_miles','')} mi)\n")
     L.append(f"_Generated {now} · profile: `{profile.get('profile_key')}`_\n")
+    refreshed = _fmt_date(stats.get("data_refreshed"))
+    if refreshed:
+        L.append(f"_Data as of last scrape: **{refreshed}**. Each job's `first seen` date is its "
+                 f"original capture date and is preserved on every re-run — if a role is still up "
+                 f"tomorrow, it keeps today's date._\n")
     L.append(f"**{stats['total_jobs']}** jobs · **{stats['n_companies']}** companies "
              f"(**{stats['n_enriched']}** enriched) · **{stats['n_resp']}** with mapped responsibilities · "
              f"**{len(stats['tuck_companies'])}** companies with a Tuck alum in the C-suite\n")
@@ -238,6 +285,9 @@ def render_markdown(profile, ranked, stats) -> str:
         L.append(f"- **Where:** {job['location'] or '—'}{dist}{remote_tag}")
         L.append(f"- **Ownership / stage:** {own} · {stage}{pe}{sal}"
                  + (f" · {comp_extra}" if comp_extra else ""))
+        fresh = _freshness(job)
+        if fresh:
+            L.append(f"- **Timing:** {fresh}")
         L.append(f"- **Score breakdown:** role {sc['role']} · resp {sc['responsibility']} · "
                  f"loc {sc['location']} · stage {sc['stage']} · network {sc['network']}")
         if sc["matched_families"]:
@@ -342,12 +392,15 @@ def render_html(profile, ranked, stats) -> str:
                 rows.append(f'<li><b>{e(x["name"])}</b>, {esc(x["title"])} {mark}<br><span class="muted">{summ}</span></li>')
             exhtml = f'<details><summary>C-suite ({len(exs)})</summary><ul class="execs">{"".join(rows)}</ul></details>'
         apply = f'<a class="apply" href="{e(job["source_url"])}" target="_blank" rel="noopener">Apply ↗</a>' if job["source_url"] else ""
+        fresh_html = e(_freshness(job))
+        fresh_div = f'<div class="freshness">🗓 {fresh_html}</div>' if fresh_html else ""
         cards.append(f"""
         <article class="card{' tuckcard' if tuck else ''}">
           <div class="rank">#{i}</div>
           <div class="body">
             <h3>{e(job['title'])} <span class="co">{e(job['company'])}</span> {badge}</h3>
             <div class="meta">{esc(job['location'])} {('· ' + dist) if dist else ''} · <b>{own}</b> · {stage}{pe} {sal}</div>
+            {fresh_div}
             {fam}
             <div class="score">score <b>{sc['total']}</b></div>
             <div class="bars">{bars}</div>
@@ -405,6 +458,7 @@ h1 {{ font-size:26px; margin:0 0 4px; }}
 h3 {{ margin:0 0 4px; font-size:17px; }}
 .co {{ color:var(--pink); font-weight:600; }}
 .meta {{ color:var(--muted); font-size:13.5px; margin-bottom:8px; }}
+.freshness {{ color:var(--muted); font-size:12px; margin:0 0 6px; }}
 .pill {{ display:inline-block; background:#f1f5f9; border-radius:999px; padding:2px 9px; font-size:12px; margin-right:4px; }}
 .pill.green {{ background:#ecfdf5; color:#047857; }}
 .fams {{ margin:6px 0; }}
@@ -437,7 +491,8 @@ td.num {{ font-weight:700; color:var(--pink); }}
 @media (max-width:640px) {{ .grid,.bars {{ grid-template-columns:1fr; }} .bar span{{width:110px;}} }}
 </style></head><body><div class="wrap">
 <h1>Local Opportunities — {e(profile.get('name',''))}</h1>
-<p class="sub">{e(str(loc.get('center','')))} · {e(str(loc.get('radius_miles','')))} mi · Strategic Finance / Finance leadership · generated {now}</p>
+<p class="sub">{e(str(loc.get('center','')))} · {e(str(loc.get('radius_miles','')))} mi · Strategic Finance / Finance leadership · generated {now}{(' · data as of ' + e(str(_fmt_date(stats.get('data_refreshed'))))) if stats.get('data_refreshed') else ''}</p>
+<p class="sub" style="font-size:12.5px;margin-top:-8px">Each job's <b>first seen</b> date is its original capture date — preserved on every re-run, so a role still up tomorrow keeps today's date.</p>
 <div class="stats">
   <div class="stat"><b>{stats['total_jobs']}</b>jobs in radius</div>
   <div class="stat"><b>{stats['n_companies']}</b>companies</div>

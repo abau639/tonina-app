@@ -30,6 +30,10 @@ SEARCH_CFG = REPO_ROOT / "config" / "search.json"
 # JobSpy site slugs we expose.
 SITES = ["linkedin", "indeed", "glassdoor", "google", "zip_recruiter"]
 
+# CLI-set overrides (scrape.py fills these from --results-wanted / --hours-old).
+# Anything here beats config/search.json for this process.
+OVERRIDES: dict = {}
+
 _INTERVAL_TO_PERIOD = {
     "yearly": "year", "annual": "year", "annually": "year",
     "monthly": "month", "weekly": "week", "daily": "day", "hourly": "hour",
@@ -78,8 +82,9 @@ def fetch_jobs(
     cfg = _load_search_cfg()
     center = cfg.get("center_city") or "Miami, FL"
     radius = int(cfg.get("radius_miles") or 50)
-    results_wanted = int(cfg.get("results_wanted") or 50)
-    hours_old = cfg.get("hours_old")  # None = no recency filter
+    # CLI overrides (OVERRIDES) beat config; fall back to config, then a default.
+    results_wanted = int(OVERRIDES.get("results_wanted") or cfg.get("results_wanted") or 50)
+    hours_old = OVERRIDES.get("hours_old", cfg.get("hours_old"))  # None = no recency filter
     country = cfg.get("country_indeed") or "usa"
 
     keyword_list = [k for k in (keywords or []) if k and k.strip()] or [""]

@@ -183,6 +183,35 @@ when a listing didn't post it). Knobs live in `config/search.json`
 python scripts/scrape.py --sources aggregators --keywords "strategic finance,FP&A"   # JobSpy sites
 python scripts/scrape.py --sources aggregators,vc,pe --keywords "finance"             # everything
 python scripts/scrape.py --sources linkedin_legacy --keywords "FP&A"                  # old scraper fallback
+
+# Tune JobSpy volume/recency per run (override config/search.json):
+python scripts/scrape.py --sources aggregators --keywords "FP&A" \
+    --results-wanted 100 --hours-old 168            # up to 100/site, posted in the last week
+```
+
+## Dates & freshness (when did a job actually appear?)
+
+Every job row carries three dates so you always know the true timeline:
+
+| Column | Meaning | Behavior on re-scrape |
+|---|---|---|
+| `posted_date` | when the **employer** posted it (from the source) | as reported by the board |
+| `first_seen_at` | when **we first captured** it | **frozen** — never changes once set |
+| `last_seen_at` | when we **last re-confirmed** it's still live | bumped to now every run |
+
+This is exactly the behavior you want: a job posted today keeps **today's** `first_seen_at`
+even if the scrape runs again tomorrow and the role is still up — so the original capture
+date is the truth, and `last_seen_at` tells you it's still active. The report shows a
+"posted / first seen (Nd ago) / last confirmed" line per role and a "data as of" stamp.
+
+```sql
+-- Newly-appeared roles in the last 3 days (by when WE first saw them)
+SELECT title, company, first_seen_at FROM jobs
+WHERE first_seen_at >= datetime('now','-3 days') ORDER BY first_seen_at DESC;
+
+-- Long-standing openings (seen for 30+ days and still confirmed live)
+SELECT title, company, first_seen_at, last_seen_at FROM jobs
+WHERE julianday(last_seen_at) - julianday(first_seen_at) >= 30;
 ```
 
 ## Toggles: remote, compensation, and more boards

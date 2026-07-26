@@ -134,6 +134,18 @@ def main(argv: list[str]) -> int:
         help="Run scrapers but don't write to the database; print what would be inserted.",
     )
     parser.add_argument(
+        "--results-wanted",
+        type=int,
+        default=None,
+        help="JobSpy: max postings per aggregator site per keyword (overrides config/search.json).",
+    )
+    parser.add_argument(
+        "--hours-old",
+        type=int,
+        default=None,
+        help="JobSpy: only postings newer than this many hours (overrides config/search.json).",
+    )
+    parser.add_argument(
         "--full-rescrape",
         action="store_true",
         help="Treat every result as new. (Default: upsert dedupes on company+title+source_url.)",
@@ -163,6 +175,12 @@ def main(argv: list[str]) -> int:
 
     keywords = _parse_csv(args.keywords)
     locations = _parse_csv(args.locations)
+
+    # CLI overrides for the JobSpy aggregator sources (else config/search.json wins).
+    if args.results_wanted is not None:
+        jobspy_source.OVERRIDES["results_wanted"] = args.results_wanted
+    if args.hours_old is not None:
+        jobspy_source.OVERRIDES["hours_old"] = args.hours_old
 
     print(f"Sources: {', '.join(source_names)}")
     if keywords:
