@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     radius_center TEXT,                  -- e.g. "Miami, FL" — the search anchor this job matched
     distance_miles REAL,                 -- approx miles from radius_center (best-effort)
     is_remote INTEGER NOT NULL DEFAULT 0,-- 1 if the listing is remote/anywhere
+    status TEXT NOT NULL DEFAULT 'active',-- 'active' | 'stale' (not re-seen in >3 business days)
+    stale_since TIMESTAMP,               -- when we first marked it stale (NULL while active)
     seniority TEXT,                      -- ic | manager | director | vp | c-level (LLM-extracted)
     role_family TEXT,                    -- fp&a | strategic-finance | controller | ... (LLM-extracted)
 

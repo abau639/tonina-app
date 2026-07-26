@@ -408,6 +408,35 @@ def mark_responsibilities_failed(job_id: int) -> None:
 # ---------- location annotation ----------
 
 
+def mark_stale(threshold_business_days: int = 3, reference: str | None = None) -> tuple[int, int]:
+    """Flag jobs not re-confirmed within `threshold_business_days` business days as
+    'stale'; everything else back to 'active'. The reference point is the latest
+    scrape run's start (so not having run the tool for a while doesn't falsely age
+    jobs) — falls back to now if there are no runs. Returns (n_active, n_stale)."""
+    import datetime as _dt
+
+    from scripts.lib.dates import business_days_between
+
+    n_active = n_stale = 0
+    with connect() as conn:
+        if reference is None:
+            row = conn.execute("SELECT MAX(started_at) s FROM scrape_runs").fetchone()
+            reference = (row["s"] if row else None) or _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        for r in conn.execute("SELECT id, last_seen_at FROM jobs").fetchall():
+            bd = business_days_between(r["last_seen_at"], reference)
+            if bd is not None and bd > threshold_business_days:
+                conn.execute(
+                    "UPDATE jobs SET status='stale', stale_since=COALESCE(stale_since, ?) WHERE id=?",
+                    (reference, r["id"]),
+                )
+                n_stale += 1
+            else:
+                # Re-seen (or freshly seen) — clear any prior stale mark.
+                conn.execute("UPDATE jobs SET status='active', stale_since=NULL WHERE id=?", (r["id"],))
+                n_active += 1
+    return n_active, n_stale
+
+
 def annotate_remote() -> int:
     """Set jobs.is_remote from the location text. Returns count flagged remote."""
     from scripts.sources.base import _location_is_remote

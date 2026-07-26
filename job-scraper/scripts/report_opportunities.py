@@ -204,6 +204,8 @@ def analytics() -> dict:
         n_enriched = conn.execute("SELECT COUNT(*) c FROM companies WHERE enriched = 1").fetchone()["c"]
         n_resp = conn.execute("SELECT COUNT(DISTINCT job_id) c FROM job_responsibilities").fetchone()["c"]
         n_remote = conn.execute("SELECT COUNT(*) c FROM jobs WHERE is_remote = 1").fetchone()["c"]
+        n_stale = conn.execute("SELECT COUNT(*) c FROM jobs WHERE status = 'stale'").fetchone()["c"]
+        n_active = conn.execute("SELECT COUNT(*) c FROM jobs WHERE status = 'active'").fetchone()["c"]
         n_comp = conn.execute("SELECT COUNT(*) c FROM jobs WHERE salary_min IS NOT NULL OR salary_max IS NOT NULL").fetchone()["c"]
         # Base-comp snapshot by stage (only rows that quote pay).
         comp = conn.execute(
@@ -225,6 +227,7 @@ def analytics() -> dict:
         "tuck_companies": tuck_companies, "n_companies": n_companies,
         "n_enriched": n_enriched, "n_resp": n_resp, "n_remote": n_remote,
         "n_comp": n_comp, "comp_by_stage": comp, "n_equity": n_equity,
+        "n_stale": n_stale, "n_active": n_active,
     }
 
 
@@ -267,6 +270,9 @@ def render_markdown(profile, ranked, stats) -> str:
     for i, (job, sc) in enumerate(ranked, 1):
         tuck = (job["c_tuck_count"] or 0) > 0
         flag = " ⭐ **TUCK WARM INTRO**" if tuck else ""
+        stale = (job["status"] or "active") == "stale"
+        if stale:
+            flag += " · 🔴 STALE (likely filled)"
         dist = f" · ~{job['distance_miles']:g} mi" if job["distance_miles"] is not None else ""
         own = job["ownership_type"] or job["c_ownership"] or "—"
         stage = job["company_stage"] or job["c_stage"] or "—"
@@ -358,6 +364,8 @@ def render_html(profile, ranked, stats) -> str:
     for i, (job, sc) in enumerate(ranked, 1):
         tuck = (job["c_tuck_count"] or 0) > 0
         badge = '<span class="tuck">⭐ TUCK WARM INTRO</span>' if tuck else ""
+        stale = (job["status"] or "active") == "stale"
+        stale_badge = '<span class="stale">🔴 stale · likely filled</span>' if stale else ""
         dist = f"~{job['distance_miles']:g} mi" if job["distance_miles"] is not None else ""
         own = esc(job["ownership_type"] or job["c_ownership"])
         stage = esc(job["company_stage"] or job["c_stage"])
@@ -395,10 +403,10 @@ def render_html(profile, ranked, stats) -> str:
         fresh_html = e(_freshness(job))
         fresh_div = f'<div class="freshness">🗓 {fresh_html}</div>' if fresh_html else ""
         cards.append(f"""
-        <article class="card{' tuckcard' if tuck else ''}">
+        <article class="card{' tuckcard' if tuck else ''}{' stalecard' if stale else ''}">
           <div class="rank">#{i}</div>
           <div class="body">
-            <h3>{e(job['title'])} <span class="co">{e(job['company'])}</span> {badge}</h3>
+            <h3>{e(job['title'])} <span class="co">{e(job['company'])}</span> {badge} {stale_badge}</h3>
             <div class="meta">{esc(job['location'])} {('· ' + dist) if dist else ''} · <b>{own}</b> · {stage}{pe} {sal}</div>
             {fresh_div}
             {fam}
@@ -463,6 +471,8 @@ h3 {{ margin:0 0 4px; font-size:17px; }}
 .pill.green {{ background:#ecfdf5; color:#047857; }}
 .fams {{ margin:6px 0; }}
 .tuck {{ background:var(--pink); color:#fff; border-radius:999px; padding:2px 10px; font-size:11px; font-weight:700; margin-left:6px; }}
+.stale {{ background:#fee2e2; color:#b91c1c; border-radius:999px; padding:2px 10px; font-size:11px; font-weight:700; margin-left:6px; }}
+.stalecard {{ opacity:0.6; }}
 .tuck-sm {{ background:var(--pink); color:#fff; border-radius:6px; padding:1px 6px; font-size:11px; }}
 .dart-sm {{ background:#065f46; color:#fff; border-radius:6px; padding:1px 6px; font-size:11px; }}
 .score {{ font-size:13px; color:var(--muted); margin:8px 0 2px; }}
@@ -497,7 +507,7 @@ td.num {{ font-weight:700; color:var(--pink); }}
   <div class="stat"><b>{stats['total_jobs']}</b>jobs in radius</div>
   <div class="stat"><b>{stats['n_companies']}</b>companies</div>
   <div class="stat"><b>{stats['n_remote']}</b>remote</div>
-  <div class="stat"><b>{stats['n_comp']}</b>quote pay</div>
+  <div class="stat"><b>{stats['n_stale']}</b>stale (likely filled)</div>
   <div class="stat"><b>{len(stats['tuck_companies'])}</b>with Tuck alumni</div>
 </div>
 {pending_banner}
@@ -523,6 +533,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--outdir", default="out")
     ap.add_argument("--remote", choices=["include", "exclude", "only"], default="include",
                     help="Remote roles: include (default), exclude them, or show only them")
+    ap.add_argument("--status", choices=["all", "active", "stale"], default="all",
+                    help="Job status: all (default, stale flagged), active only, or stale only")
     args = ap.parse_args(argv)
 
     profile = load_profile(args.profile)
@@ -546,10 +558,21 @@ def main(argv: list[str]) -> int:
             return not r
         return True
 
+    def status_ok(job) -> bool:
+        st = (job["status"] or "active")
+        if args.status == "active":
+            return st != "stale"
+        if args.status == "stale":
+            return st == "stale"
+        return True
+
     scored.sort(key=lambda t: t[1]["total"], reverse=True)
-    ranked = [t for t in scored if t[1]["total"] >= args.min_score and remote_ok(t[0])][: args.top]
+    ranked = [t for t in scored
+              if t[1]["total"] >= args.min_score and remote_ok(t[0]) and status_ok(t[0])][: args.top]
     if args.remote != "include":
         print(f"(remote filter: {args.remote})")
+    if args.status != "all":
+        print(f"(status filter: {args.status})")
 
     stats = analytics()
     outdir = REPO_ROOT / args.outdir

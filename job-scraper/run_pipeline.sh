@@ -34,8 +34,13 @@ python scripts/extract_responsibilities.py || echo "   (skipped/failed — needs
 echo "==> enrich companies (ownership / stage / PE / C-suite / Tuck)"
 python scripts/enrich_companies.py || echo "   (skipped/failed — needs ANTHROPIC_API_KEY)"
 
-echo "==> annotate distances + remote + rank"
+echo "==> annotate distances + remote"
 python -c "from scripts import db; print('in-radius annotated:', db.annotate_distances('$CENTER', $RADIUS)); print('remote flagged:', db.annotate_remote())"
+
+echo "==> mark stale (>3 business days unseen)"
+python scripts/mark_stale.py --days 3
+
+echo "==> rank + report"
 python scripts/report_opportunities.py --top 50 --remote "$REMOTE"
 
 echo "==> done. open out/opportunities.html"

@@ -214,6 +214,32 @@ SELECT title, company, first_seen_at, last_seen_at FROM jobs
 WHERE julianday(last_seen_at) - julianday(first_seen_at) >= 30;
 ```
 
+### Stale detection (likely-filled roles)
+
+A live job gets its `last_seen_at` bumped on every scrape. When a role hasn't been
+re-confirmed in **more than 3 business days** (weekends excluded), it's flagged
+`status = 'stale'` — probably filled or pulled. Re-appearing flips it back to `active`.
+Staleness is measured against the **latest scrape run**, not the wall clock, so leaving
+the tool idle for a week doesn't falsely age everything.
+
+```bash
+python scripts/mark_stale.py            # threshold = 3 business days (run_pipeline does this)
+python scripts/mark_stale.py --days 5 --list
+```
+
+In the report, stale roles get a 🔴 badge and dim; the header shows a stale count. Filter with:
+
+```bash
+python scripts/report_opportunities.py --status active   # hide likely-filled roles
+python scripts/report_opportunities.py --status stale    # audit what dropped off
+python scripts/report_opportunities.py --status all      # default (stale flagged)
+```
+
+```sql
+-- Everything still active (not stale)
+SELECT title, company, last_seen_at FROM jobs WHERE status = 'active';
+```
+
 ## Toggles: remote, compensation, and more boards
 
 ```bash

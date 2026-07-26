@@ -36,6 +36,8 @@ _MIGRATIONS = {
         ("equity_offered", "TEXT"),
         ("bonus_text", "TEXT"),
         ("is_remote", "INTEGER NOT NULL DEFAULT 0"),
+        ("status", "TEXT NOT NULL DEFAULT 'active'"),
+        ("stale_since", "TIMESTAMP"),
     ],
 }
 
