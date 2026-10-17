@@ -325,7 +325,7 @@ export default function CACCaseStudy() {
         {/* ── Board Deck vs. Reality Table ── */}
         <section className="mb-14">
           <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-3">Internal Data · Six Quarters</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Six Quarters. Nobody Said Anything.</h2>
+          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">Six Quarters. Nobody Said Anything.</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-6">
             Left column: what was in the board deck each quarter. Right column: what channel-level data showed. The left column never changed.
           </p>
@@ -362,7 +362,7 @@ export default function CACCaseStudy() {
         {/* ── Beat 4 + Simulator ── */}
         <section className="mb-14">
           <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-3">04 — The Reallocation Simulator</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">What Happens When You Shift the Budget</h2>
+          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">What Happens When You Shift the Budget</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-8">
             The recommendation: cap paid social spend growth and reallocate up to 30% of its budget to the affiliate channel, which holds a stable 5-month payback. Organic is excluded — free channels do not scale on demand, which is exactly why the company leaned harder on paid social as it decayed.
           </p>
@@ -434,7 +434,7 @@ export default function CACCaseStudy() {
         <section>
           <div className="bg-pink-50 border border-pink-100 rounded-2xl p-8">
             <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-4">05 — The Call + The Tradeoff</div>
-            <h2 className="text-xl font-bold text-slate-900 mb-6">What to tell the board</h2>
+            <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-6">What to tell the board</h2>
 
             <div className="space-y-4 text-sm text-slate-700 leading-relaxed mb-6">
               <p>

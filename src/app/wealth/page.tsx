@@ -40,7 +40,7 @@ export default function WealthLandingPage() {
         </section>
         
         <section className="max-w-6xl mx-auto px-6 py-12 border-t border-slate-50">
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Choose your path to understand wealth creation.</h2>
+          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">Choose your path to understand wealth creation.</h2>
           <p className="text-base text-slate-500 mb-8">Learn more by playing with the game or the planner.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Link href="/wealth/archetype" className="group block p-8 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-200 hover:shadow-sm transition-all duration-300 no-underline">
@@ -72,7 +72,7 @@ export default function WealthLandingPage() {
         </section>
 
         <section className="max-w-6xl mx-auto px-6 py-16 text-center border-t border-slate-50">
-            <h2 className="text-2xl font-bold text-slate-900 mb-3">Want to go deeper?</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">Want to go deeper?</h2>
             <p className="text-slate-500 max-w-md mx-auto mb-8 text-base">
                 For a personalized breakdown of your financial situation, let's analyze the numbers together.
             </p>

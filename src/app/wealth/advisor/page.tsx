@@ -379,7 +379,7 @@ function AdvisorContent() {
                 <section>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">1</div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">The Setup</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">The Setup</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         
@@ -450,7 +450,7 @@ function AdvisorContent() {
                 <section>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">2</div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Monthly Expenses</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Monthly Expenses</h2>
                     </div>
                     <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
@@ -484,7 +484,7 @@ function AdvisorContent() {
                 <section>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">3</div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Life Events & Aspirations</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Life Events & Aspirations</h2>
                     </div>
                     <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm">
                         
@@ -707,7 +707,7 @@ function AdvisorContent() {
                 <section>
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-sm"><LineChart className="w-4 h-4"/></div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Future Trajectory</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Future Trajectory</h2>
                     </div>
                     
                     <p className="text-sm text-slate-500 italic mb-6 leading-relaxed">

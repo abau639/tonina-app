@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EDUCATION_DISCLAIMER, VIEWS_DISCLAIMER } from "~/lib/legal";
 
 export function SiteFooter() {
   return (
@@ -8,11 +9,12 @@ export function SiteFooter() {
           <div className="flex flex-wrap gap-6">
             <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
             <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
+            <Link href="/refunds" className="hover:text-slate-900 transition-colors">Refunds</Link>
           </div>
           <p className="text-xs text-slate-400">© {new Date().getFullYear()} Tonina.me</p>
         </div>
         <p className="text-xs font-normal text-slate-400 max-w-3xl leading-relaxed">
-          Tonina.me is for education only. Nothing here is investment, tax or legal advice.
+          {EDUCATION_DISCLAIMER} {VIEWS_DISCLAIMER}
         </p>
       </div>
     </footer>

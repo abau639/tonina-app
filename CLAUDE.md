@@ -24,7 +24,7 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 | Route | Feature | JD target |
 |---|---|---|
 | `/` | Homepage | General |
-| `/wealth` | Tools hub (nav label "Tools") | General |
+| `/wealth` | Plan Your Path hub (nav label "Plan Your Path"; avoid "advice"/"advisor" wording in UI) | General |
 | `/wealth/advisor` | Scenario Planner (30-yr net worth model) | Notion / Databricks |
 | `/wealth/archetype` | Wealth archetype tool | General |
 | `/concept-explorer` | Case Studies hub (nav label "Case Studies") | General |
@@ -34,6 +34,7 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 | `/concept-explorer/saas` | SaaS metrics dictionary | Notion |
 | `/concept-explorer/weather` | True Sensation weather (Phase 1: mock, Phase 2: Open-Meteo API). Not linked from the hub or sitemap. | General / DAU |
 | `/blog` | Blog | General |
+| `/terms`, `/privacy`, `/refunds` | Legal pages | General |
 
 Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`) redirect via `next.config.js`.
 
@@ -41,6 +42,7 @@ Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`) 
 - Every page uses `SiteNav` and `SiteFooter` from `src/app/_components/`. Don't inline a nav or footer.
 - Page titles use the root template `%s | Tonina.me`. Client pages get their metadata from a sibling `layout.tsx`.
 - When adding a route, add it to `src/app/sitemap.ts`.
+- Legal wording (footer disclaimer, session consent, affiliate disclosure) lives in `src/lib/legal.ts`. Reuse it; don't rewrite it inline.
 - Canonical URL comes from `src/lib/site.ts` (`NEXT_PUBLIC_SITE_URL`, defaults to https://tonina.me).
 
 ## Critical rules (hard-won)

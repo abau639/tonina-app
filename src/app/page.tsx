@@ -7,21 +7,21 @@ export default function Home() {
   const projects = [
     {
       title: "Case Studies",
-      description: "CFO-style case studies and teardowns: channel-level CAC, DoorDash's GAAP vs. cash story, the SaaS metrics that drive valuation, and a crisis simulation.",
+      description: "Build professional finance skills on real companies: DoorDash's cash story, SaaS metrics, a CAC channel that quietly broke, and a crisis simulation.",
       href: "/concept-explorer",
       icon: <BookOpen className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
       tag: "Learn"
     },
     {
-      title: "Tools",
-      description: "The Scenario Planner: a 30-year model of how income, housing, kids and investing choices shape net worth.",
+      title: "Plan Your Path",
+      description: "Play through the money choices that shape a life, then plan your own with a 30-year Scenario Planner.",
       href: "/wealth",
       icon: <LineChart className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
-      tag: "Model"
+      tag: "Plan"
     },
     {
       title: "Blog",
-      description: "Why these tools exist, and notes on personal finance and strategic finance.",
+      description: "What I'm learning as I go, in personal finance and in the finance profession. Join me on the way.",
       href: "/blog",
       icon: <FileText className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
       tag: "Writing"
@@ -36,11 +36,11 @@ export default function Home() {
         <section className="max-w-6xl mx-auto px-6 pt-16 pb-12">
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 mb-5 leading-[1.1]">
-              Strategic finance, <br />
-              <span className="text-slate-400">made interactive.</span>
+              Financial know-how, <br />
+              <span className="text-slate-400">made easy for everyone.</span>
             </h1>
             <p className="text-xl text-slate-500 leading-relaxed font-normal">
-              Case studies, models and tools for operators, analysts and MBAs who want to think like a finance leader. Built by Alfredo Baudet.
+              Plan your financial path, build professional finance skills, and learn alongside me as I go. I'm Alfredo Baudet, and this is where I share what I learn.
             </p>
           </div>
         </section>

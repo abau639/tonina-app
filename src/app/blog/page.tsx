@@ -26,7 +26,7 @@ export default function BlogIndex() {
       <SiteNav />
 
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-12 w-full">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-4">Writings & Memos</h1>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">Writings & Memos</h1>
         <p className="text-lg text-slate-500 leading-relaxed">
           Explorations at the intersection of finance, technology, and building.
         </p>
@@ -45,7 +45,7 @@ export default function BlogIndex() {
                 <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{post.readTime}</span>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-pink-600 transition-colors">
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3 group-hover:text-pink-600 transition-colors">
                 {post.title}
               </h2>
               <p className="text-base text-slate-600 leading-relaxed mb-4">

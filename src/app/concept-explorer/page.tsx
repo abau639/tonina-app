@@ -44,7 +44,7 @@ export default function ConceptExplorerHub() {
           <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-200 mb-4">
             Educational Library
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-3">Case Studies</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-3">Case Studies</h1>
           <p className="text-base text-slate-500 max-w-2xl leading-relaxed">
             Interactive case studies and teardowns that show how finance leaders read the numbers and make the call.
           </p>

@@ -2,6 +2,7 @@ import { User } from "lucide-react";
 import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
 import { type Metadata } from "next";
+import { AFFILIATE_DISCLOSURE, SESSION_CONSENT, VIEWS_DISCLAIMER } from "~/lib/legal";
 
 export const metadata: Metadata = {
   title: "Terms of Use",
@@ -14,9 +15,9 @@ export default function TermsPage() {
       <SiteNav />
 
       <div className="flex-1 max-w-3xl mx-auto px-6 py-16 w-full">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-8">Terms of Service & Disclaimer</h1>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-8">Terms of Service & Disclaimer</h1>
         
-        <div className="prose prose-slate max-w-none prose-h2:text-xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-p:text-sm prose-p:leading-relaxed prose-p:text-slate-600">
+        <div className="prose prose-slate max-w-none prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-p:text-base prose-p:leading-relaxed prose-p:text-slate-600">
           <div className="bg-rose-50 border border-rose-200 p-6 rounded-xl mb-8">
             <h2 className="text-rose-800 !mt-0 !mb-2 uppercase tracking-widest text-xs">Not Financial Advice</h2>
             <p className="text-rose-700 !mt-0 font-medium">
@@ -34,22 +35,35 @@ export default function TermsPage() {
             The interactive tools and spreadsheets provided on this site are provided "as is" and "as available," without any warranties, express or implied. Tonina.me and its creator assume no liability for any software bugs, data losses, or financial miscalculations resulting from the use of these tools.
           </p>
 
-          <h2>3. Monetization and Advisory Offerings</h2>
+          <h2>3. Paid Products and Sessions</h2>
           <p>
-            Unless explicitly stated otherwise, the content on this site is free and educational. However, I reserve the right to offer paid 1:1 advisory sessions, premium templates, or sponsored content in the future. Any paid advisory sessions are for strategic consulting and generalized planning, not formal fiduciary wealth management.
+            Tonina.me may sell templates, downloadable models and paid sessions. These are educational products. They are general and impersonal, and they are not tailored investment, tax or legal advice for your situation. Buying a product or booking a session does not create an advisory, fiduciary or client relationship.
+          </p>
+          <p>
+            Before booking a paid session, you will be asked to confirm: &ldquo;{SESSION_CONSENT}&rdquo; Refunds are covered by the <a href="/refunds">Refund Policy</a>.
           </p>
 
-          <h2>4. Intellectual Property</h2>
+          <h2>4. Affiliate Links and Sponsorships</h2>
+          <p>
+            Some pages may include affiliate links or sponsored content. When they do, a disclosure appears right next to the link, for example: &ldquo;{AFFILIATE_DISCLOSURE}&rdquo; Sponsors never review or approve the analysis before it is published.
+          </p>
+
+          <h2>5. Personal Views</h2>
+          <p>
+            {VIEWS_DISCLAIMER} Case studies use public information only and never rely on confidential information from any employer.
+          </p>
+
+          <h2>6. Intellectual Property</h2>
           <p>
             The original code, writing, and design elements of Tonina.me are my intellectual property. You may not scrape, clone, or commercially repackage the tools and essays found here without explicit written permission.
           </p>
 
-          <h2>5. Limitation of Liability</h2>
+          <h2>7. Limitation of Liability</h2>
           <p>
             To the maximum extent permitted by law, Tonina.me and its creator shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including any loss of profits or revenues, incurred from your use of the website or its tools.
           </p>
           
-          <p className="text-xs text-slate-400 mt-12 italic">Last Updated: March 2026</p>
+          <p className="text-xs text-slate-400 mt-12 italic">Last Updated: October 2026</p>
         </div>
       </div>
       <SiteFooter />

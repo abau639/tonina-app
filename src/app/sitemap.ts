@@ -16,6 +16,7 @@ const ROUTES = [
   "/blog/debt-freedom",
   "/terms",
   "/privacy",
+  "/refunds",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

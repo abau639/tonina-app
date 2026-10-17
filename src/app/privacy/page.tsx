@@ -13,9 +13,9 @@ export default function PrivacyPage() {
       <SiteNav />
 
       <div className="flex-1 max-w-3xl mx-auto px-6 py-16 w-full">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-8">Privacy Policy</h1>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-8">Privacy Policy</h1>
         
-        <div className="prose prose-slate max-w-none prose-h2:text-xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-p:text-sm prose-p:leading-relaxed prose-p:text-slate-600">
+        <div className="prose prose-slate max-w-none prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-p:text-base prose-p:leading-relaxed prose-p:text-slate-600">
           <p className="text-lg text-slate-700">
             <strong>TL;DR:</strong> I do not store your personal financial data, and I absolutely do not sell any information to third parties.
           </p>
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
 
           <h2>3. Cookies and Analytics</h2>
           <p>
-            Tonina.me uses PostHog to understand general traffic patterns, such as which pages are visited and how people move between the Case Studies, Tools and Blog. PostHog sets a cookie to recognize returning browsers and records page views and basic device information. Visitors are not identified by name, and the numbers you type into the tools are not sent to PostHog.
+            Tonina.me uses PostHog to understand general traffic patterns, such as which pages are visited and how people move between the Case Studies, Plan Your Path and Blog. PostHog sets a cookie to recognize returning browsers and records page views and basic device information. Visitors are not identified by name, and the numbers you type into the tools are not sent to PostHog.
           </p>
 
           <h2>4. Third-Party Links</h2>

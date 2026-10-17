@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react";
 
 export const NAV_LINKS = [
   { href: "/concept-explorer", label: "Case Studies" },
-  { href: "/wealth", label: "Tools" },
+  { href: "/wealth", label: "Plan Your Path" },
   { href: "/blog", label: "Blog" },
 ] as const;
 
@@ -24,12 +24,12 @@ export function SiteNav() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-      <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-6 h-[72px] flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Logo /> Tonina.me
+          <Link href="/" className="font-bold tracking-tight text-slate-900 text-[22px] flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+            <Logo className="text-[26px]" /> Tonina.me
           </Link>
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+          <div className="hidden md:flex items-center gap-8 text-base font-medium text-slate-600">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -44,16 +44,16 @@ export function SiteNav() {
         </div>
         <button
           type="button"
-          className="md:hidden text-slate-500 hover:text-slate-900"
+          className="md:hidden p-2 -mr-2 text-slate-500 hover:text-slate-900"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen(!open)}
         >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
       {open && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-6 py-3 flex flex-col gap-3 text-sm font-medium text-slate-600">
+        <div className="md:hidden border-t border-slate-100 bg-white px-6 py-4 flex flex-col gap-4 text-base font-medium text-slate-600">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}

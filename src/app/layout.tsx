@@ -15,14 +15,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Tonina.me | Strategic Finance, Made Interactive",
+    default: "Tonina.me | Financial Know-How, Made Easy",
     template: "%s | Tonina.me",
   },
-  description: "Case studies, models and tools for operators, analysts and MBAs who want to think like a finance leader. Built by Alfredo Baudet.",
+  description: "Plan your financial path, build professional finance skills, and learn alongside Alfredo Baudet as he shares what he learns.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   openGraph: {
-    title: "Tonina.me | Strategic Finance, Made Interactive",
-    description: "Interactive finance case studies, SaaS metrics and a 30-year net worth Scenario Planner.",
+    title: "Tonina.me | Financial Know-How, Made Easy",
+    description: "Interactive finance case studies and a 30-year Scenario Planner to plan your financial path.",
     siteName: "Tonina.me",
     type: "website",
   },

@@ -372,7 +372,7 @@ export default function App() {
           <div className="w-16 h-16 bg-zinc-800 text-zinc-300 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-zinc-700">
             <Activity className="w-8 h-8" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white mb-6">Life: The Simulation</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">Life: The Simulation</h1>
           <p className="text-lg text-zinc-400 mb-8 leading-relaxed">
             Seven choices until retirement. What choices do you make?
           </p>
