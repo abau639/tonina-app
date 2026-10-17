@@ -53,7 +53,7 @@ export default function WealthLandingPage() {
               </p>
             </Link>
 
-            <Link href="/wealth/advisor" className="group block p-8 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-200 hover:shadow-sm transition-all duration-300 no-underline">
+            <Link href="/wealth/planner" className="group block p-8 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-200 hover:shadow-sm transition-all duration-300 no-underline">
               <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-white mb-6 group-hover:bg-slate-800 transition-colors">
                 <LineChart className="w-6 h-6" />
               </div>

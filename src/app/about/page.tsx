@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 // The real sequence of Alfredo's path, so the numbered markers carry meaning.
-const CHAPTERS = [
+const CHAPTERS: { stage: string; title: string; body: string; wins?: string[] }[] = [
   {
     stage: "Middle school",
     title: "A first paycheck and the worst budget possible",
@@ -25,6 +25,10 @@ const CHAPTERS = [
     stage: "With friends",
     title: "Helping friends build their own",
     body: "Friends started asking how I did it, so I helped them build budgets of their own. Then I helped them with their first jobs: reading an offer, understanding a paycheck, deciding what to do with what's left.",
+    wins: [
+      "Several of them have paid down their university debt.",
+      "Many still use my budget templates to plan each year.",
+    ],
   },
   {
     stage: "Early career",
@@ -43,7 +47,7 @@ const EXPERIENCE = [
   { company: "P&G · Gillette", role: "Brand Finance & Strategy (now), Supply Chain FP&A (before)" },
   { company: "Dilmun", role: "Strategic Finance & Fundraising" },
   { company: "Microsoft", role: "Product Marketing Intern" },
-  { company: "Mobius Materials", role: "Operations & Product (3rd employee)" },
+  { company: "Mobius Materials", role: "Business Operations (3rd employee)" },
   { company: "PwC", role: "Financial Consulting, then Project Management" },
 ];
 
@@ -75,6 +79,16 @@ export default function AboutPage() {
                   <p className="text-sm font-semibold uppercase tracking-[0.1em] text-pink-600">{c.stage}</p>
                   <h2 className="text-2xl md:text-3xl font-bold mt-1 mb-2">{c.title}</h2>
                   <p className="text-lg text-slate-600 leading-relaxed">{c.body}</p>
+                  {c.wins && (
+                    <div className="mt-5 rounded-xl bg-mist border-l-4 border-navy p-5">
+                      <p className="text-sm font-semibold uppercase tracking-[0.1em] text-slate-500 mb-2">Where they are now</p>
+                      <ul className="flex flex-col gap-2 text-lg text-ink">
+                        {c.wins.map((w) => (
+                          <li key={w} className="flex gap-3"><span className="text-pink-600 font-bold" aria-hidden="true">✓</span>{w}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </li>
             ))}

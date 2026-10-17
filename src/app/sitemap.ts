@@ -9,7 +9,7 @@ const ROUTES = [
   "/concept-explorer/saas",
   "/concept-explorer/snapchat",
   "/wealth",
-  "/wealth/advisor",
+  "/wealth/planner",
   "/wealth/archetype",
   "/money",
   "/money/lottery",

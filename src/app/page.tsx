@@ -16,7 +16,7 @@ const PATH_STEPS = [
     step: "Step 2",
     title: "Plan with real numbers",
     description: "The Scenario Planner models 30 years of income, housing, kids and investing.",
-    href: "/wealth/advisor",
+    href: "/wealth/planner",
     note: "Free, no sign-up",
   },
   {
@@ -99,7 +99,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 py-16">
             <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 mb-3">Case Studies</p>
             <div className="flex flex-wrap items-end justify-between gap-4 mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight max-w-2xl">Build professional skills on real companies</h2>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight max-w-2xl">Learn to think as a finance professional</h2>
               <Link href="/concept-explorer" className="text-base font-semibold text-ink hover:text-pink-600 transition-colors">Browse by industry →</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

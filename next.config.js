@@ -24,6 +24,7 @@ const nextConfig = {
       { source: "/sandbox/:path*", destination: "/", permanent: false },
       { source: "/concept-explorer/airbnb", destination: "/concept-explorer", permanent: false },
       { source: "/blog/why-i-built-this", destination: "/about", permanent: true },
+      { source: "/wealth/advisor", destination: "/wealth/planner", permanent: true },
     ];
   },
 };

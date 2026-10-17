@@ -431,7 +431,7 @@ export default function App() {
 
   if (gameState === "ended" && retirementData) {
     const safeNW = Math.max(0, retirementData.finalNW);
-    const advisorUrl = `/wealth/advisor?cash=${Math.floor(safeNW)}`;
+    const plannerUrl = `/wealth/planner?cash=${Math.floor(safeNW)}`;
 
     return (
       <main className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex items-center justify-center p-6 selection:bg-pink-900/30">
@@ -491,7 +491,7 @@ export default function App() {
               <Share2 className="w-4 h-4" /> {shareText}
             </button>
             <Link 
-              href={advisorUrl}
+              href={plannerUrl}
               className="w-full sm:w-auto bg-emerald-600 text-white px-8 py-3.5 rounded-full font-bold hover:bg-emerald-500 transition-all flex items-center justify-center gap-2"
             >
               <LineChart className="w-4 h-4" /> Build a Real Plan

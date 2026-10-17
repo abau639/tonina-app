@@ -25,7 +25,7 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 |---|---|---|
 | `/` | Homepage | General |
 | `/wealth` | Plan Your Path hub (nav label "Plan Your Path"; avoid "advice"/"advisor" wording in UI) | General |
-| `/wealth/advisor` | Scenario Planner (30-yr net worth model) | Notion / Databricks |
+| `/wealth/planner` | Scenario Planner (30-yr net worth model) | Notion / Databricks |
 | `/wealth/archetype` | Wealth archetype tool | General |
 | `/money` | How Money Works hub: concept library, each concept opens with a real-life question | General |
 | `/money/lottery` | Lesson 1, time value of money: lottery cash now vs. 30 payments (no taxes on purpose; lesson 2 covers taxes) | General |
@@ -53,7 +53,7 @@ Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`, 
 1. **Ghost Digit bug** — All `onChange` handlers on number inputs must fall back to `0` on empty string, never `""`. Prevents divide-by-zero in amortization loops.
 2. **Suspense boundary** — Any component using `useSearchParams()` MUST be wrapped in `<Suspense>` or Vercel prod build fails. The Scenario Planner already does this.
 3. **SSR hydration** — Never use `Math.random()` or `Date.now()` for initial element IDs. Hardcode IDs; use `useEffect` for browser-only data.
-4. **Chart.js plugin IDs** — Inline plugins passed to `<Bar plugins={[...]}>` must be stable (created once via `useRef`). Recreating a plugin with the same `id` crashes Chart.js. See `mbbPlugin` in `/wealth/advisor/page.tsx` for the ref pattern.
+4. **Chart.js plugin IDs** — Inline plugins passed to `<Bar plugins={[...]}>` must be stable (created once via `useRef`). Recreating a plugin with the same `id` crashes Chart.js. See `mbbPlugin` in `/wealth/planner/page.tsx` for the ref pattern.
 
 ## Weather module (True Sensation)
 - **Phase 1** (current): mocked data, Boston default
