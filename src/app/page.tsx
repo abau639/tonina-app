@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
+import { EmailSignup } from "~/app/_components/EmailSignup";
 import { CASES } from "~/app/concept-explorer/cases";
 
 const PATH_STEPS = [
@@ -28,10 +28,6 @@ const PATH_STEPS = [
   },
 ];
 
-const POSTS = [
-  { href: "/blog/why-i-built-this", date: "March 2026", title: "Why I Built This Platform" },
-  { href: "/blog/debt-freedom", date: "June 2026", title: "Your Debt Doesn't Have to Own You" },
-];
 
 export default function Home() {
   return (
@@ -47,13 +43,19 @@ export default function Home() {
             <p className="text-xl leading-relaxed text-navy-soft max-w-2xl">
               Plan your financial path, build professional finance skills, and learn alongside me as I go. I&apos;m Alfredo, and this is where I share what I learn. Would you like to join me as I learn?
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link href="/wealth" className="inline-flex items-center gap-2 rounded-lg bg-pink-600 px-5 py-3 text-base font-semibold text-white hover:bg-pink-500 transition-colors">
-                Start with the basics <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link href="/about" className="inline-flex items-center rounded-lg border border-navy-soft/50 px-5 py-3 text-base font-semibold text-white hover:bg-navy-800 transition-colors">
-                Read my story
-              </Link>
+            <div className="mt-9">
+              <EmailSignup id="hero" source="home-hero" />
+              <p className="mt-5 text-base text-navy-soft">
+                Or{" "}
+                <Link href="/wealth" className="font-semibold text-white underline decoration-pink-400 underline-offset-4 hover:decoration-2">
+                  start with the basics
+                </Link>{" "}
+                and{" "}
+                <Link href="/about" className="font-semibold text-white underline decoration-pink-400 underline-offset-4 hover:decoration-2">
+                  read my story
+                </Link>
+                .
+              </p>
             </div>
           </div>
         </section>
@@ -84,9 +86,9 @@ export default function Home() {
             </div>
             <Link href="/money/lottery" className="group grid md:grid-cols-[1fr_auto] gap-6 items-center rounded-xl bg-white border border-slate-200 p-8 hover:border-pink-300 transition-colors no-underline">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-pink-600">Time value of money</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-pink-600">Lesson 1 · Time value of money</span>
                 <h3 className="text-2xl md:text-3xl font-bold mt-2 mb-2">You win the lottery. How much do you actually take home?</h3>
-                <p className="text-base text-slate-600 max-w-2xl">Compare the lump sum with 30 yearly payments, after federal and Massachusetts taxes, and see why a dollar today is worth more than a dollar later.</p>
+                <p className="text-base text-slate-600 max-w-2xl">Take the cash now or 30 yearly payments? Lesson 1 shows why a dollar today is worth more than a dollar later.</p>
               </div>
               <span className="text-base font-semibold text-ink group-hover:text-pink-600 transition-colors whitespace-nowrap">Try it →</span>
             </Link>
@@ -113,30 +115,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-mist">
-          <div className="max-w-6xl mx-auto px-6 py-16">
-            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 mb-3">Blog</p>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8">Learning out loud</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {POSTS.map((p) => (
-                <Link key={p.href} href={p.href} className="group border-b border-slate-300 pb-5 flex flex-col gap-1 no-underline">
-                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500 tabular-nums">{p.date}</span>
-                  <h3 className="text-2xl font-bold group-hover:text-pink-600 transition-colors">{p.title}</h3>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section className="bg-navy text-white">
-          <div className="max-w-6xl mx-auto px-6 py-14 flex flex-wrap items-center justify-between gap-6">
+          <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Would you like to join me as I learn?</h2>
-              <p className="text-navy-soft mt-2 text-lg">There&apos;s no straight path in finance. Here&apos;s mine so far.</p>
+              <p className="text-navy-soft mt-3 text-lg">There&apos;s no straight path in finance. Get each new lesson and case study as it comes out.</p>
             </div>
-            <Link href="/about" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-base font-semibold text-navy hover:bg-mist transition-colors">
-              Read my story <ArrowRight className="w-4 h-4" />
-            </Link>
+            <EmailSignup id="closing" source="home-closing" />
           </div>
         </section>
       </div>

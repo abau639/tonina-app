@@ -15,7 +15,6 @@ const ROUTES = [
   "/money/lottery",
   "/about",
   "/blog",
-  "/blog/why-i-built-this",
   "/blog/debt-freedom",
   "/terms",
   "/privacy",

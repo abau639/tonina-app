@@ -2,6 +2,7 @@ import Link from "next/link";
 import { type Metadata } from "next";
 import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
+import { EmailSignup } from "~/app/_components/EmailSignup";
 
 export const metadata: Metadata = {
   title: "About",
@@ -11,9 +12,9 @@ export const metadata: Metadata = {
 // The real sequence of Alfredo's path, so the numbered markers carry meaning.
 const CHAPTERS = [
   {
-    stage: "In school",
-    title: "The worst budget possible",
-    body: "I made my first budget in school. It was terrible: categories that made no sense, numbers that never matched what I actually spent. But it was the first time I tried to see where my money went.",
+    stage: "Middle school",
+    title: "A first paycheck and the worst budget possible",
+    body: "I got my first paycheck in middle school and made my first budget to go with it. It was terrible: categories that made no sense, numbers that never matched what I actually spent. But it was the first time I tried to see where my money went.",
   },
   {
     stage: "University",
@@ -35,6 +36,15 @@ const CHAPTERS = [
     title: "Corporate finance",
     body: "Now I work in corporate finance, using that thinking to help a business decide where its money should go. Tonina is where I take what I learn and make it usable for everyone else.",
   },
+];
+
+// Moved here from the old "Why I Built This Platform" post.
+const EXPERIENCE = [
+  { company: "P&G · Gillette", role: "Brand Finance & Strategy (now), Supply Chain FP&A (before)" },
+  { company: "Dilmun", role: "Strategic Finance & Fundraising" },
+  { company: "Microsoft", role: "Product Marketing Intern" },
+  { company: "Mobius Materials", role: "Operations & Product (3rd employee)" },
+  { company: "PwC", role: "Financial Consulting, then Project Management" },
 ];
 
 export default function AboutPage() {
@@ -72,6 +82,23 @@ export default function AboutPage() {
         </section>
 
         <section className="bg-mist">
+          <div className="max-w-3xl mx-auto px-6 py-14">
+            <h2 className="text-3xl font-bold text-ink mb-6">Where I&apos;ve worked</h2>
+            <ul className="flex flex-col divide-y divide-slate-300 border-y border-slate-300">
+              {EXPERIENCE.map((e) => (
+                <li key={e.company} className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 py-4">
+                  <span className="font-display text-lg font-bold text-ink">{e.company}</span>
+                  <span className="text-base text-slate-600 sm:text-right">{e.role}</span>
+                </li>
+              ))}
+            </ul>
+            <a href="https://www.linkedin.com/in/abaudet/" target="_blank" rel="noopener noreferrer" className="inline-block mt-5 text-base font-semibold text-ink underline decoration-pink-500 underline-offset-4 hover:decoration-2">
+              See my full experience on LinkedIn →
+            </a>
+          </div>
+        </section>
+
+        <section className="bg-white">
           <div className="max-w-3xl mx-auto px-6 py-14 flex flex-col gap-4 text-lg leading-relaxed text-slate-700">
             <h2 className="text-3xl font-bold text-ink">Why Tonina</h2>
             <p>
@@ -80,15 +107,19 @@ export default function AboutPage() {
             <p>
               Tonina is where I share what I&apos;ve learned and keep learning in public. It has tools to plan your own path, plain-language explanations of how money works, and case studies on real companies.
             </p>
-            <p className="font-semibold text-ink">Would you like to join me as I learn?</p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Link href="/wealth" className="inline-flex items-center rounded-lg bg-pink-600 px-5 py-3 text-base font-semibold text-white hover:bg-pink-500 transition-colors">
-                Start with the basics
-              </Link>
-              <Link href="/blog" className="inline-flex items-center rounded-lg border border-slate-300 px-5 py-3 text-base font-semibold text-ink hover:border-navy transition-colors">
-                Read the blog
-              </Link>
-            </div>
+            <p className="text-base text-slate-500">
+              And the name? A <em>tonina</em> is a pink freshwater dolphin from the Amazon River. Who doesn&apos;t love dolphins?
+            </p>
+          </div>
+        </section>
+
+        <section className="bg-navy text-white">
+          <div className="max-w-3xl mx-auto px-6 py-14 flex flex-col gap-5">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Would you like to join me as I learn?</h2>
+            <EmailSignup id="about" source="about" />
+            <Link href="/wealth" className="text-base font-semibold text-white underline decoration-pink-400 underline-offset-4 hover:decoration-2 w-fit">
+              Or start with the basics →
+            </Link>
           </div>
         </section>
       </div>

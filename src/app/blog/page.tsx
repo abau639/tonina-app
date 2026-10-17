@@ -6,6 +6,7 @@ import { SiteFooter } from "~/app/_components/SiteFooter";
 const BLOG_POSTS = [
   {
     slug: "debt-freedom",
+    href: "/blog/debt-freedom",
     title: "Your Debt Doesn't Have to Own You",
     excerpt: "Most college grads carry debt like background noise. Here's why paying it down aggressively — not just investing around it — is the move that buys back your freedom.",
     date: "JUN 2026",
@@ -13,8 +14,9 @@ const BLOG_POSTS = [
   },
   {
     slug: "why-i-built-this",
+    href: "/about",
     title: "Why I Built This Platform",
-    excerpt: "From securitized bonds to full-stack engineering: exploring the compounding value of building your own tools.",
+    excerpt: "My path from a middle-school paycheck to corporate finance, and why Tonina exists. Now on the About page.",
     date: "MAR 2026",
     readTime: "3 min read"
   }
@@ -36,7 +38,7 @@ export default function BlogIndex() {
         <div className="flex flex-col space-y-8">
           {BLOG_POSTS.map((post, idx) => (
             <Link 
-              href={`/blog/${post.slug}`} 
+              href={post.href} 
               key={idx} 
               className="group block py-6 border-t border-slate-100 first:border-t-0 hover:bg-slate-50 -mx-6 px-6 rounded-2xl transition-colors"
             >

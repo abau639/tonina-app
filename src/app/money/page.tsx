@@ -3,10 +3,10 @@ import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
 
 const COMING_NEXT = [
+  { concept: "Lesson 2 · How taxes work", question: "Why is your raise smaller than it looks?" },
   { concept: "Compound interest", question: "How long until your savings double?" },
   { concept: "Inflation", question: "What will $100 buy in 20 years?" },
   { concept: "Interest on debt", question: "Why does a credit card balance grow so fast?" },
-  { concept: "Marginal vs. effective tax", question: "Does a raise ever leave you with less?" },
 ];
 
 export default function MoneyHub() {
@@ -29,9 +29,9 @@ export default function MoneyHub() {
           <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col gap-10">
             <Link href="/money/lottery" className="group grid md:grid-cols-[1fr_auto] gap-6 items-center rounded-xl bg-white border border-slate-200 p-8 hover:border-pink-300 transition-colors no-underline">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-pink-600">Time value of money</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-pink-600">Lesson 1 · Time value of money</span>
                 <h2 className="text-2xl md:text-3xl font-bold mt-2 mb-2">You win the lottery. How much do you actually take home?</h2>
-                <p className="text-base text-slate-600 max-w-2xl">Lump sum or 30 yearly payments, after federal and Massachusetts taxes.</p>
+                <p className="text-base text-slate-600 max-w-2xl">Take the cash now or 30 yearly payments? See why a dollar today is worth more than a dollar later.</p>
               </div>
               <span className="text-base font-semibold text-ink group-hover:text-pink-600 transition-colors whitespace-nowrap">Try it →</span>
             </Link>

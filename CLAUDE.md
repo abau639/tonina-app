@@ -28,7 +28,7 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 | `/wealth/advisor` | Scenario Planner (30-yr net worth model) | Notion / Databricks |
 | `/wealth/archetype` | Wealth archetype tool | General |
 | `/money` | How Money Works hub: concept library, each concept opens with a real-life question | General |
-| `/money/lottery` | Time value of money: lottery lump sum vs. 30 payments after federal + MA tax | General |
+| `/money/lottery` | Lesson 1, time value of money: lottery cash now vs. 30 payments (no taxes on purpose; lesson 2 covers taxes) | General |
 | `/about` | Alfredo's story (numbered path) | General |
 | `/concept-explorer` | Case Studies industry library; case list lives in `concept-explorer/cases.ts` (nav label "Case Studies") | General |
 | `/concept-explorer/cac` | Channel-level CAC CFO case study | General |
@@ -39,9 +39,10 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 | `/blog` | Blog | General |
 | `/terms`, `/privacy`, `/refunds` | Legal pages | General |
 
-Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`) redirect via `next.config.js`.
+Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`, `/blog/why-i-built-this` → `/about`) redirect via `next.config.js`.
 
 ## Shared layout & SEO
+- The primary call to action is the email signup (`EmailSignup` component → `/api/subscribe`). It forwards to beehiiv or Kit based on `NEWSLETTER_PROVIDER` and answers "signups open soon" until one is configured.
 - Every page uses `SiteNav` and `SiteFooter` from `src/app/_components/`. Don't inline a nav or footer.
 - Page titles use the root template `%s | Tonina.me`. Client pages get their metadata from a sibling `layout.tsx`.
 - When adding a route, add it to `src/app/sitemap.ts`.
@@ -68,4 +69,7 @@ NEXTAUTH_SECRET=<any string locally>
 DATABASE_URL=postgresql://... (optional locally)
 # Phase 2 weather (no key needed for Open-Meteo):
 # ACCUWEATHER_KEY=... (if switching to AccuWeather later)
+# Newsletter signup (pick one):
+# NEWSLETTER_PROVIDER=beehiiv  BEEHIIV_API_KEY=...  BEEHIIV_PUBLICATION_ID=pub_...
+# NEWSLETTER_PROVIDER=kit      KIT_API_KEY=...      KIT_FORM_ID=... (optional)
 ```

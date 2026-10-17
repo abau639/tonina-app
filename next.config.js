@@ -23,6 +23,7 @@ const nextConfig = {
       { source: "/journey", destination: "/", permanent: false },
       { source: "/sandbox/:path*", destination: "/", permanent: false },
       { source: "/concept-explorer/airbnb", destination: "/concept-explorer", permanent: false },
+      { source: "/blog/why-i-built-this", destination: "/about", permanent: true },
     ];
   },
 };
