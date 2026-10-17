@@ -4,22 +4,19 @@ import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
 
 export default function WealthLandingPage() {
-  const mailtoSubject = encodeURIComponent("1:1 Wealth Conversation");
-  const mailtoBody = encodeURIComponent("Hi Alfredo,\n\nI’d love to schedule some time with you to discuss my financial situation and learn more about how I can optimize my potential.");
-  
   return (
-    <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-pink-100 flex flex-col">
+    <main className="min-h-screen bg-white text-ink flex flex-col">
       <SiteNav />
 
       <div className="flex-1">
-        <section className="max-w-6xl mx-auto px-6 pt-16 pb-12">
-          <div className="inline-flex items-center gap-2 bg-pink-50 text-pink-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-pink-100 mb-6">
-            Wealth OS
+        <section className="bg-navy text-white mb-12">
+          <div className="max-w-6xl mx-auto px-6 pt-14 pb-12">
+            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-navy-soft mb-3">Plan Your Path</p>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Master the 4 investments of life</h1>
+            <p className="text-lg text-navy-soft max-w-2xl leading-relaxed">
+              See how owning a home, educating your kids, covering health costs and retiring on your terms fit together over a lifetime.
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">Master the 4 Investments of Life</h1>
-          <p className="text-lg text-slate-500 max-w-2xl leading-relaxed">
-            Tonina helps you visualize your journey from owning a home to securing a worry-free retirement, all in one friendly interface.
-          </p>
         </section>
 
         <section className="max-w-6xl mx-auto px-6 pb-12">
@@ -71,14 +68,16 @@ export default function WealthLandingPage() {
           </div>
         </section>
 
-        <section className="max-w-6xl mx-auto px-6 py-16 text-center border-t border-slate-50">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">Want to go deeper?</h2>
-            <p className="text-slate-500 max-w-md mx-auto mb-8 text-base">
-                For a personalized breakdown of your financial situation, let's analyze the numbers together.
-            </p>
-            <a href={`mailto:alfredo@tonina.me?subject=${mailtoSubject}&body=${mailtoBody}`} className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-colors shadow-sm">
-                Book a 1:1 Session
-            </a>
+        <section className="bg-mist">
+          <div className="max-w-6xl mx-auto px-6 py-14 flex flex-wrap items-center justify-between gap-6">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-ink">Want to understand the ideas behind the plan?</h2>
+              <p className="text-slate-600 mt-2 text-base">How Money Works explains concepts like the time value of money with real-life questions.</p>
+            </div>
+            <Link href="/money" className="inline-flex items-center rounded-lg bg-navy px-5 py-3 text-base font-semibold text-white hover:bg-navy-800 transition-colors">
+              Explore How Money Works
+            </Link>
+          </div>
         </section>
       </div>
 

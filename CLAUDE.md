@@ -7,7 +7,7 @@ Alfredo's personal portfolio + interactive finance tool. Every feature maps to a
 - **Framework**: Next.js 14 App Router, bootstrapped via T3 Stack
 - **Language**: Strict TypeScript
 - **Styling**: Tailwind CSS
-- **Design system**: white/slate-50 bg · slate-900 text · **pink-600 accents** ("Tonina Pink") · "Business Casual / Databricks-inspired"
+- **Design system** (Theme A, "Navy bands"): navy (`bg-navy`, #0f1b2d) nav and hero bands, alternating white and `bg-mist` sections, `text-ink` body text, **pink-600 only for actions and small labels**. Headings use Sora (`font-display`, applied to h1-h3 globally); body uses Source Sans 3. Text wordmark "Tonina." replaces the whale emoji.
 - **Charts**: Chart.js + react-chartjs-2
 - **Analytics**: PostHog — custom `PostHogPageView` listener in `src/app/providers.tsx` (SPA soft-route fix)
 - **Hosting**: Vercel — `git push origin main` auto-deploys, no manual step
@@ -27,7 +27,10 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 | `/wealth` | Plan Your Path hub (nav label "Plan Your Path"; avoid "advice"/"advisor" wording in UI) | General |
 | `/wealth/advisor` | Scenario Planner (30-yr net worth model) | Notion / Databricks |
 | `/wealth/archetype` | Wealth archetype tool | General |
-| `/concept-explorer` | Case Studies hub (nav label "Case Studies") | General |
+| `/money` | How Money Works hub: concept library, each concept opens with a real-life question | General |
+| `/money/lottery` | Time value of money: lottery lump sum vs. 30 payments after federal + MA tax | General |
+| `/about` | Alfredo's story (numbered path) | General |
+| `/concept-explorer` | Case Studies industry library; case list lives in `concept-explorer/cases.ts` (nav label "Case Studies") | General |
 | `/concept-explorer/cac` | Channel-level CAC CFO case study | General |
 | `/concept-explorer/doordash` | GAAP vs FCF scrollytelling | Reddit |
 | `/concept-explorer/snapchat` | Project Family Center sim | Uber |
