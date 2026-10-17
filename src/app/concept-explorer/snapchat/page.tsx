@@ -3,31 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, ArrowLeft, Target, Activity, Users, Lightbulb, AlertTriangle, CheckCircle2, Search, Briefcase, Zap } from "lucide-react";
-
-// Desaturated, grayscale emoji logo
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
-    🐋
-  </span>
-);
-
-const GlobalNav = () => (
-  <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-    <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-      <div className="flex items-center gap-8">
-        <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <DolphinLogo /> Tonina.me
-        </Link>
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-          <Link href="/concept-explorer" className="text-pink-600 font-bold transition-colors">Concept Explorer</Link>
-          <Link href="/wealth" className="hover:text-slate-900 transition-colors">Tonina Wealth</Link>
-          <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-          <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-        </div>
-      </div>
-    </div>
-  </nav>
-);
+import { SiteNav } from "~/app/_components/SiteNav";
 
 // --- DATA & CONTENT ---
 const ROLES = [
@@ -103,7 +79,7 @@ export default function SnapchatCaseStudy() {
   if (step === "intro") {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-        <GlobalNav />
+        <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-2xl bg-white p-10 md:p-14 rounded-3xl border border-slate-200 shadow-sm text-center">
             <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-yellow-200 mb-6">
@@ -128,7 +104,7 @@ export default function SnapchatCaseStudy() {
   if (step === "role") {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-        <GlobalNav />
+        <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-3xl w-full bg-white p-8 md:p-12 rounded-3xl border border-slate-200 shadow-sm">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Select Your Role</h2>
@@ -157,7 +133,7 @@ export default function SnapchatCaseStudy() {
   if (step === "context") {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-        <GlobalNav />
+        <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-2xl w-full bg-white p-10 md:p-12 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1.5 bg-yellow-400"></div>
@@ -186,7 +162,7 @@ export default function SnapchatCaseStudy() {
   if (step === "data_gather") {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-        <GlobalNav />
+        <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-4xl w-full bg-white p-8 md:p-12 rounded-3xl border border-slate-200 shadow-sm">
             <div className="flex justify-between items-end mb-6">
@@ -244,7 +220,7 @@ export default function SnapchatCaseStudy() {
 
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-        <GlobalNav />
+        <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-3xl w-full bg-white p-8 md:p-12 rounded-3xl border border-slate-200 shadow-sm">
             <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2"><Lightbulb className="w-6 h-6 text-yellow-500"/> Synthesis & Intelligence</h2>
@@ -282,7 +258,7 @@ export default function SnapchatCaseStudy() {
   if (step === "pitch") {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-        <GlobalNav />
+        <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-3xl w-full bg-white p-8 md:p-12 rounded-3xl border border-slate-200 shadow-sm">
             <h2 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-2">The Boardroom</h2>
@@ -316,7 +292,7 @@ export default function SnapchatCaseStudy() {
     
     return (
       <main className="min-h-screen bg-slate-950 text-slate-50 font-sans flex flex-col">
-        <GlobalNav />
+        <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-4xl w-full py-12">
             

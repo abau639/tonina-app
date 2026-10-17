@@ -1,15 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { BookOpen, DollarSign, Users, Activity, BarChart3 } from "lucide-react";
-
-// Desaturated, grayscale emoji logo
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
-    🐋
-  </span>
-);
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 const CATEGORIES = [
   { id: "all", label: "All Metrics" },
@@ -135,21 +129,7 @@ export default function SaasDictionary() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24">
       {/* Global Nav Banner */}
-      <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <DolphinLogo /> Tonina.me
-            </Link>
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <Link href="/concept-explorer" className="text-pink-600 font-bold transition-colors">Concept Explorer</Link>
-              <Link href="/wealth" className="hover:text-slate-900 transition-colors">Tonina Wealth</Link>
-              <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-              <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       <header className="max-w-3xl mx-auto px-6 pt-16 pb-10 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-4">The Language of SaaS</h1>
@@ -202,6 +182,7 @@ export default function SaasDictionary() {
         </div>
 
       </div>
+      <SiteFooter />
     </main>
   );
 }

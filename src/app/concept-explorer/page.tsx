@@ -1,11 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, Layers, BookOpen, AlertTriangle, DollarSign, CloudSun, TrendingDown } from "lucide-react";
-
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
-    🐋
-  </span>
-);
+import { ArrowRight, Layers, BookOpen, AlertTriangle, TrendingDown } from "lucide-react";
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 export default function ConceptExplorerHub() {
   const concepts = [
@@ -36,49 +32,21 @@ export default function ConceptExplorerHub() {
       href: "/concept-explorer/snapchat", 
       icon: <AlertTriangle className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
       tag: "Role-Playing Case Study"
-    },
-    {
-      title: "The Take Rate Tradeoff",
-      description: "Play as the CFO reviewing high-value bookings. Adjust host vs. guest fee burdens to maximize EBITDA.",
-      href: "/concept-explorer/airbnb",
-      icon: <DollarSign className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
-      tag: "Marketplace Simulator"
-    },
-    {
-      title: "True Sensation",
-      description: "Skip the forecast numbers. The action engine translates RealFeel temperature, wind, UV, and precipitation into plain human advice on how to get dressed.",
-      href: "/concept-explorer/weather",
-      icon: <CloudSun className="w-5 h-5 text-slate-600 group-hover:text-pink-600 transition-colors" />,
-      tag: "Weather Intelligence"
     }
   ];
 
   return (
     <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-pink-100 flex flex-col">
-      <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <DolphinLogo /> Tonina.me
-            </Link>
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <span className="text-pink-600 font-bold">Concept Explorer</span>
-              <Link href="/wealth" className="hover:text-slate-900 transition-colors">Tonina Wealth</Link>
-              <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-              <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       <div className="flex-1 w-full">
         <section className="max-w-6xl mx-auto px-6 pt-12 pb-8">
           <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-200 mb-4">
             Educational Library
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-3">Concept Explorer</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-3">Case Studies</h1>
           <p className="text-base text-slate-500 max-w-2xl leading-relaxed">
-            Exploration and application of financial topics—some to scale, others to strategically measure performance. 
+            Interactive case studies and teardowns that show how finance leaders read the numbers and make the call.
           </p>
         </section>
 
@@ -109,15 +77,7 @@ export default function ConceptExplorerHub() {
         </section>
       </div>
 
-      <footer className="border-t border-slate-100 bg-white py-8 mt-auto w-full">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm font-medium text-slate-500">
-          <div className="flex gap-6">
-            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-          </div>
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Tonina.me</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

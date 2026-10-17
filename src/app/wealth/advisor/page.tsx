@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, Suspense } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   Chart as ChartJS,
@@ -15,21 +14,17 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 import { 
     Home, Car, GraduationCap, Baby, Dog, Heart, 
-    Banknote, Settings2, Plus, X, Menu, Palmtree, Trash2, LineChart, HelpCircle
+    Banknote, Settings2, Plus, Palmtree, Trash2, LineChart, HelpCircle
 } from "lucide-react";
 
 // Inject site-wide font and slate text color into Chart.js defaults
 ChartJS.defaults.font.family = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 ChartJS.defaults.color = "#64748b";
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
-
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
-    🐋
-  </span>
-);
 
 const formatMoney = (num: number | undefined) => {
     if (num === undefined || isNaN(num)) return "$0";
@@ -258,7 +253,6 @@ function AdvisorContent() {
     
     const [categories, setCategories] = useState({ "Rent/Housing": 1500, "Groceries": 500, "Travel": 200, "Investments": 300, "Utilities": 150, "Shopping & Misc": 100 });
     const [allocations, setAllocations] = useState<Record<string, number>>({});
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const toggleMilestone = (m: string) => milestones.includes(m) ? setMilestones(milestones.filter(x=>x!==m)) : setMilestones([...milestones, m]); 
 
@@ -350,26 +344,7 @@ function AdvisorContent() {
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-pink-100">
             
-            <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-                <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                        <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-                            <DolphinLogo /> Tonina.me
-                        </Link>
-                        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-                            <Link href="/concept-explorer" className="hover:text-slate-900 transition-colors">Concept Explorer</Link>
-                            <Link href="/wealth" className="text-pink-600 font-bold transition-colors">Tonina Wealth</Link>
-                            <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-                            <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-6 text-sm font-medium text-slate-600">
-                        <button className="md:hidden text-slate-500 hover:text-slate-900" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            <SiteNav />
 
             <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-12 space-y-16">
                 
@@ -823,15 +798,7 @@ function AdvisorContent() {
                 </section>
             </main>
 
-            <footer className="border-t border-slate-100 bg-white py-10 mt-auto w-full">
-                <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm font-medium text-slate-500">
-                <div className="flex gap-6">
-                    <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-                    <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-                </div>
-                <p className="text-xs text-slate-400">© {new Date().getFullYear()} Tonina.me</p>
-                </div>
-            </footer>
+            <SiteFooter />
         </div>
     );
 }

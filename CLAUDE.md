@@ -24,19 +24,24 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 | Route | Feature | JD target |
 |---|---|---|
 | `/` | Homepage | General |
+| `/wealth` | Tools hub (nav label "Tools") | General |
 | `/wealth/advisor` | Scenario Planner (30-yr net worth model) | Notion / Databricks |
 | `/wealth/archetype` | Wealth archetype tool | General |
-| `/concept-explorer` | Hub | General |
+| `/concept-explorer` | Case Studies hub (nav label "Case Studies") | General |
+| `/concept-explorer/cac` | Channel-level CAC CFO case study | General |
 | `/concept-explorer/doordash` | GAAP vs FCF scrollytelling | Reddit |
 | `/concept-explorer/snapchat` | Project Family Center sim | Uber |
-| `/concept-explorer/airbnb` | Take Rate / EBITDA sim | Uber |
 | `/concept-explorer/saas` | SaaS metrics dictionary | Notion |
-| `/concept-explorer/weather` | True Sensation weather (Phase 1: mock, Phase 2: Open-Meteo API) | General / DAU |
-| `/lab` | Lab hub | General |
-| `/lab/portfolio-tracker` | Portfolio tracker | Databricks |
-| `/lab/game` | Game | General |
+| `/concept-explorer/weather` | True Sensation weather (Phase 1: mock, Phase 2: Open-Meteo API). Not linked from the hub or sitemap. | General / DAU |
 | `/blog` | Blog | General |
-| `/journey` | Journey | General |
+
+Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`) redirect via `next.config.js`.
+
+## Shared layout & SEO
+- Every page uses `SiteNav` and `SiteFooter` from `src/app/_components/`. Don't inline a nav or footer.
+- Page titles use the root template `%s | Tonina.me`. Client pages get their metadata from a sibling `layout.tsx`.
+- When adding a route, add it to `src/app/sitemap.ts`.
+- Canonical URL comes from `src/lib/site.ts` (`NEXT_PUBLIC_SITE_URL`, defaults to https://tonina.me).
 
 ## Critical rules (hard-won)
 1. **Ghost Digit bug** — All `onChange` handlers on number inputs must fall back to `0` on empty string, never `""`. Prevents divide-by-zero in amortization loops.

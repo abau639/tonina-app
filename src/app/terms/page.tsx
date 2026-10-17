@@ -1,28 +1,17 @@
-import Link from "next/link";
 import { User } from "lucide-react";
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
+import { type Metadata } from "next";
 
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>🐋</span>
-);
+export const metadata: Metadata = {
+  title: "Terms of Use",
+  description: "Terms of use for Tonina.me.",
+};
 
 export default function TermsPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col selection:bg-pink-100">
-      <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <DolphinLogo /> Tonina.me
-            </Link>
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <Link href="/concept-explorer" className="hover:text-slate-900 transition-colors">Concept Explorer</Link>
-              <Link href="/wealth" className="hover:text-slate-900 transition-colors">Tonina Wealth</Link>
-              <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-              <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       <div className="flex-1 max-w-3xl mx-auto px-6 py-16 w-full">
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-8">Terms of Service & Disclaimer</h1>
@@ -63,6 +52,7 @@ export default function TermsPage() {
           <p className="text-xs text-slate-400 mt-12 italic">Last Updated: March 2026</p>
         </div>
       </div>
+      <SiteFooter />
     </main>
   );
 }

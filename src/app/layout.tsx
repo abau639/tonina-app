@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/react";
 import { CSPostHogProvider } from "./providers"; // Import our new PostHog Provider
+import { SITE_URL } from "~/lib/site";
 
 // Use the standard Inter font
 const inter = Inter({
@@ -12,13 +13,21 @@ const inter = Inter({
 
 // Upgraded SEO Metadata for LinkedIn / Twitter sharing
 export const metadata: Metadata = {
-  title: "Tonina.me | Personal Portfolio & Financial Architecture",
-  description: "A digital portfolio exploring financial systems, unit economics, and software architecture. Built by Alfredo Baudet.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Tonina.me | Strategic Finance, Made Interactive",
+    template: "%s | Tonina.me",
+  },
+  description: "Case studies, models and tools for operators, analysts and MBAs who want to think like a finance leader. Built by Alfredo Baudet.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   openGraph: {
-    title: "Tonina.me | Financial Architecture",
-    description: "Explore interactive financial teardowns, SaaS metrics, and wealth projection tools.",
+    title: "Tonina.me | Strategic Finance, Made Interactive",
+    description: "Interactive finance case studies, SaaS metrics and a 30-year net worth Scenario Planner.",
+    siteName: "Tonina.me",
     type: "website",
+  },
+  twitter: {
+    card: "summary",
   },
 };
 

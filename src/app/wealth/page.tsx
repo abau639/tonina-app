@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Home, GraduationCap, ShieldCheck, Palmtree, Gamepad2, LineChart } from "lucide-react";
-
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
-    🐋
-  </span>
-);
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 export default function WealthLandingPage() {
   const mailtoSubject = encodeURIComponent("1:1 Wealth Conversation");
@@ -13,21 +9,7 @@ export default function WealthLandingPage() {
   
   return (
     <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-pink-100 flex flex-col">
-      <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <DolphinLogo /> Tonina.me
-            </Link>
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <Link href="/concept-explorer" className="hover:text-slate-900 transition-colors">Concept Explorer</Link>
-              <span className="text-pink-600 font-bold">Tonina Wealth</span>
-              <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-              <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       <div className="flex-1">
         <section className="max-w-6xl mx-auto px-6 pt-16 pb-12">
@@ -100,15 +82,7 @@ export default function WealthLandingPage() {
         </section>
       </div>
 
-      <footer className="border-t border-slate-100 bg-white py-10 mt-auto w-full">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm font-medium text-slate-500">
-          <div className="flex gap-6">
-            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-          </div>
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Tonina.me</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
