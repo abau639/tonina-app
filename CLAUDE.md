@@ -41,6 +41,9 @@ Requires `.env` with `NEXTAUTH_URL=http://localhost:3000` and `NEXTAUTH_SECRET=a
 
 Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`, `/blog/why-i-built-this` → `/about`) redirect via `next.config.js`.
 
+## Writing
+All user-facing copy (lessons, posts, emails, case studies) follows `VOICE.md`.
+
 ## Shared layout & SEO
 - The primary call to action is the email signup (`EmailSignup` component → `/api/subscribe`). It forwards to beehiiv or Kit based on `NEWSLETTER_PROVIDER` and answers "signups open soon" until one is configured.
 - Every page uses `SiteNav` and `SiteFooter` from `src/app/_components/`. Don't inline a nav or footer.

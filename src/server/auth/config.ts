@@ -11,7 +11,8 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   adapter: PrismaAdapter(db),
-  providers: [
+  // Dev Login signs anyone in with any email and no password, so it only exists outside production.
+  providers: process.env.NODE_ENV === "production" ? [] : [
     CredentialsProvider({
       name: "Dev Login",
       credentials: {
