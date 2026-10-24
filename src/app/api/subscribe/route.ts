@@ -7,6 +7,9 @@ import { env } from "~/env";
 // Kit v4 keys start with "kit_"; anything else is treated as a v3 API key (the public one, never the secret).
 // With no provider configured it answers 503 so the form can say signups open soon.
 
+// The setup check below must read settings at request time, not at build time.
+export const dynamic = "force-dynamic";
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Body = { email?: unknown; website?: unknown; source?: unknown };
@@ -30,6 +33,7 @@ async function subscribeKitV3(email: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ api_key: env.KIT_API_KEY, email }),
   });
+  if (!res.ok) console.error("Kit v3 signup failed", res.status, await res.text());
   return res.ok;
 }
 
@@ -41,7 +45,10 @@ async function subscribeKit(email: string) {
     headers,
     body: JSON.stringify({ email_address: email }),
   });
-  if (!created.ok) return false;
+  if (!created.ok) {
+    console.error("Kit v4 signup failed", created.status, await created.text());
+    return false;
+  }
   if (!env.KIT_FORM_ID) return true;
   const added = await fetch(`https://api.kit.com/v4/forms/${env.KIT_FORM_ID}/subscribers`, {
     method: "POST",
@@ -49,6 +56,17 @@ async function subscribeKit(email: string) {
     body: JSON.stringify({ email_address: email }),
   });
   return added.ok;
+}
+
+// Setup check: open /api/subscribe in a browser to see which settings this deployment can see.
+// Shows only whether each one is set, never the key itself.
+export function GET() {
+  const key = env.KIT_API_KEY ?? env.BEEHIIV_API_KEY;
+  return NextResponse.json({
+    provider: env.NEWSLETTER_PROVIDER ?? "not set",
+    apiKey: key ? (env.KIT_API_KEY?.startsWith("kit_") ? "set (Kit v4)" : "set") : "not set",
+    kitFormId: env.KIT_FORM_ID ? (/^\d+$/.test(env.KIT_FORM_ID) ? "set" : "set, but not just digits") : "not set",
+  });
 }
 
 export async function POST(request: Request) {
