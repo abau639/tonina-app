@@ -1,5 +1,6 @@
 import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
+import { CONTACT_EMAIL } from "~/lib/legal";
 import { type Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -27,7 +28,7 @@ export default function PrivacyPage() {
 
           <h2>2. Email Communications</h2>
           <p>
-            If you choose to voluntarily provide your email address (for instance, to download a template or request a 1:1 session), I will only use that email to send you the requested material and occasional updates related to Tonina.me. You will always have the option to unsubscribe. Your email will never be sold or rented to third-party marketers.
+            If you choose to voluntarily provide your email address (for instance, to download a template or request a 1:1 session), I will only use that email to send you the requested material and occasional updates related to Tonina.me. You will always have the option to unsubscribe. Your email will never be sold or rented to third-party marketers. Email addresses are stored with Kit, the newsletter service that sends these emails.
           </p>
 
           <h2>3. Cookies and Analytics</h2>
@@ -43,6 +44,11 @@ export default function PrivacyPage() {
           <h2>5. Policy Changes</h2>
           <p>
             As this platform grows and features (like user accounts or cloud saving) are potentially added, this privacy policy may be updated. Any significant changes regarding data storage will be clearly communicated on this page.
+          </p>
+
+          <h2>6. Contact</h2>
+          <p>
+            Questions about your data, or want it deleted? Email me at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
           </p>
 
           <p className="text-xs text-slate-400 mt-12 italic">Last Updated: October 2026</p>

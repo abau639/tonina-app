@@ -74,5 +74,5 @@ DATABASE_URL=postgresql://... (optional locally)
 # ACCUWEATHER_KEY=... (if switching to AccuWeather later)
 # Newsletter signup (pick one):
 # NEWSLETTER_PROVIDER=beehiiv  BEEHIIV_API_KEY=...  BEEHIIV_PUBLICATION_ID=pub_...
-# NEWSLETTER_PROVIDER=kit      KIT_API_KEY=...      KIT_FORM_ID=... (optional)
+# NEWSLETTER_PROVIDER=kit      KIT_API_KEY=... (v3 API key or v4 kit_ key)  KIT_FORM_ID=... (required with a v3 key)
 ```

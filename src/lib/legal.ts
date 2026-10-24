@@ -4,6 +4,9 @@
 export const EDUCATION_DISCLAIMER =
   "Tonina.me is for educational and informational purposes only. Nothing here is investment, tax or legal advice, and no advisory relationship is created by using this site or its products.";
 
+// Where readers and buyers reach Alfredo (privacy, refunds, terms questions).
+export const CONTACT_EMAIL = "alfredo@tonina.me";
+
 export const VIEWS_DISCLAIMER = "Views are my own and do not represent my employer.";
 
 // Shown next to the checkbox a buyer ticks before booking a paid session.

@@ -3,7 +3,8 @@ import { env } from "~/env";
 
 // Email signup. Forwards the address to whichever newsletter tool is configured:
 //   NEWSLETTER_PROVIDER=beehiiv  + BEEHIIV_API_KEY + BEEHIIV_PUBLICATION_ID
-//   NEWSLETTER_PROVIDER=kit      + KIT_API_KEY (+ optional KIT_FORM_ID)
+//   NEWSLETTER_PROVIDER=kit      + KIT_API_KEY + KIT_FORM_ID (form optional with a v4 key)
+// Kit v4 keys start with "kit_"; anything else is treated as a v3 API key (the public one, never the secret).
 // With no provider configured it answers 503 so the form can say signups open soon.
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,7 +23,18 @@ async function subscribeBeehiiv(email: string, source: string) {
   return res.ok;
 }
 
+async function subscribeKitV3(email: string) {
+  if (!env.KIT_FORM_ID) return false;
+  const res = await fetch(`https://api.convertkit.com/v3/forms/${env.KIT_FORM_ID}/subscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ api_key: env.KIT_API_KEY, email }),
+  });
+  return res.ok;
+}
+
 async function subscribeKit(email: string) {
+  if (!env.KIT_API_KEY?.startsWith("kit_")) return subscribeKitV3(email);
   const headers = { "X-Kit-Api-Key": env.KIT_API_KEY ?? "", "Content-Type": "application/json" };
   const created = await fetch("https://api.kit.com/v4/subscribers", {
     method: "POST",

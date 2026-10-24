@@ -1,5 +1,6 @@
 import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
+import { CONTACT_EMAIL } from "~/lib/legal";
 import { type Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function RefundsPage() {
 
           <h2>1. Digital templates and downloads</h2>
           <p>
-            Because digital files can&apos;t be returned, purchases are generally final. If a file is broken, won&apos;t open, or doesn&apos;t match its description, contact me within 14 days of purchase by replying to your receipt email. I&apos;ll send a working file or a full refund, whichever you prefer. Other refund requests are considered case by case.
+            Because digital files can&apos;t be returned, purchases are generally final. If a file is broken, won&apos;t open, or doesn&apos;t match its description, contact me within 14 days of purchase by replying to your receipt email or writing to the address below. I&apos;ll send a working file or a full refund, whichever you prefer. Other refund requests are considered case by case.
           </p>
 
           <h2>2. Paid sessions</h2>
@@ -33,6 +34,11 @@ export default function RefundsPage() {
           <h2>3. How refunds are paid</h2>
           <p>
             Refunds go back to the original payment method through the payment processor used at checkout. They usually appear within 5 to 10 business days, depending on your bank.
+          </p>
+
+          <h2>4. Contact</h2>
+          <p>
+            To ask for a refund or report a broken file, email me at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
           </p>
 
           <p className="text-xs text-slate-400 mt-12 italic">Last Updated: October 2026</p>

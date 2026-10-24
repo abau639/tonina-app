@@ -2,7 +2,7 @@ import { User } from "lucide-react";
 import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
 import { type Metadata } from "next";
-import { AFFILIATE_DISCLOSURE, SESSION_CONSENT, VIEWS_DISCLAIMER } from "~/lib/legal";
+import { AFFILIATE_DISCLOSURE, SESSION_CONSENT, VIEWS_DISCLAIMER, CONTACT_EMAIL } from "~/lib/legal";
 
 export const metadata: Metadata = {
   title: "Terms of Use",
@@ -63,6 +63,11 @@ export default function TermsPage() {
             To the maximum extent permitted by law, Tonina.me and its creator shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including any loss of profits or revenues, incurred from your use of the website or its tools.
           </p>
           
+          <h2>8. Contact</h2>
+          <p>
+            Questions about these terms? Email me at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          </p>
+
           <p className="text-xs text-slate-400 mt-12 italic">Last Updated: October 2026</p>
         </div>
       </div>
