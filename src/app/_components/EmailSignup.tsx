@@ -1,8 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { KIT_PUBLIC_FORM_ID } from "~/lib/newsletter";
 
-type Status = { state: "idle" | "sending" | "done" | "error"; message?: string };
+type Status = { state: "idle" | "sending" | "done" | "error"; message?: string; link?: string };
+
+const DONE = "Almost done. Check your inbox and confirm your email.";
+const FAILED = "We couldn't sign you up just now. Please try again later.";
+
+// Kit's bot filter quarantines signups sent from a server, so the form posts from the visitor's
+// browser, the same way Kit's own embed does. If Kit still wants a check, it returns a page to verify on.
+async function joinKitForm(email: string): Promise<Status> {
+  const res = await fetch(`https://app.kit.com/forms/${KIT_PUBLIC_FORM_ID}/subscriptions`, {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body: new URLSearchParams({ email_address: email }),
+  });
+  const data = (await res.json().catch(() => ({}))) as { status?: string; url?: string };
+  if (res.ok && data.status === "success") return { state: "done", message: DONE };
+  if (data.status === "quarantined" && data.url) {
+    return { state: "done", message: "One quick check to show you're not a bot, then confirm your email.", link: data.url };
+  }
+  return { state: "error", message: FAILED };
+}
 
 // The site's primary call to action: join the email list.
 // `tone` matches the band it sits on (navy bands use "dark").
@@ -15,6 +35,20 @@ export function EmailSignup({ source, tone = "dark", id }: { source: string; ton
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus({ state: "sending" });
+    if (KIT_PUBLIC_FORM_ID) {
+      if (website) return setStatus({ state: "done", message: DONE });
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        return setStatus({ state: "error", message: "That email doesn't look right. Check it and try again." });
+      }
+      try {
+        const next = await joinKitForm(email.trim());
+        setStatus(next);
+        if (next.state === "done") setEmail("");
+      } catch {
+        setStatus({ state: "error", message: "We couldn't reach the signup service. Check your connection and try again." });
+      }
+      return;
+    }
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
@@ -23,10 +57,10 @@ export function EmailSignup({ source, tone = "dark", id }: { source: string; ton
       });
       const data = (await res.json()) as { ok?: boolean; error?: string; detail?: string };
       if (res.ok && data.ok) {
-        setStatus({ state: "done", message: "Almost done. Check your inbox and confirm your email." });
+        setStatus({ state: "done", message: DONE });
         setEmail("");
       } else {
-        const message = data.error ?? "We couldn't sign you up just now. Please try again later.";
+        const message = data.error ?? FAILED;
         // On preview deployments, show the technical reason so setup problems are visible without logs.
         const preview = window.location.hostname.endsWith(".vercel.app");
         setStatus({ state: "error", message: preview && data.detail ? `${message} (${data.detail})` : message });
@@ -67,6 +101,14 @@ export function EmailSignup({ source, tone = "dark", id }: { source: string; ton
         }`}
       >
         {status.message ?? "One email a month: the newest lesson or case study, and what I learned. Unsubscribe anytime."}
+        {status.link && (
+          <>
+            {" "}
+            <a href={status.link} target="_blank" rel="noopener noreferrer" className={`font-semibold underline underline-offset-4 ${dark ? "text-white" : "text-ink"}`}>
+              Verify here
+            </a>
+          </>
+        )}
       </p>
     </form>
   );

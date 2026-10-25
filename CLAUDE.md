@@ -45,7 +45,7 @@ Retired routes (`/lab/*`, `/journey`, `/sandbox/*`, `/concept-explorer/airbnb`, 
 All user-facing copy (lessons, posts, emails, case studies) follows `VOICE.md`.
 
 ## Shared layout & SEO
-- The primary call to action is the email signup (`EmailSignup` component → `/api/subscribe`). It posts to the Kit form in `src/lib/newsletter.ts` (form number only, no keys or Vercel settings needed). Env vars can switch it to beehiiv or the Kit API.
+- The primary call to action is the email signup (`EmailSignup` component → `/api/subscribe`). It posts from the visitor's browser to the Kit form in `src/lib/newsletter.ts` (form number only, no keys or Vercel settings needed; Kit quarantines server-side form posts as bots). Env vars can switch it to beehiiv or the Kit API.
 - Every page uses `SiteNav` and `SiteFooter` from `src/app/_components/`. Don't inline a nav or footer.
 - Page titles use the root template `%s | Tonina.me`. Client pages get their metadata from a sibling `layout.tsx`.
 - When adding a route, add it to `src/app/sitemap.ts`.
