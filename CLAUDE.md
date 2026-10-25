@@ -76,3 +76,4 @@ DATABASE_URL=postgresql://... (optional locally)
 # NEWSLETTER_PROVIDER=beehiiv  BEEHIIV_API_KEY=...  BEEHIIV_PUBLICATION_ID=pub_...
 # NEWSLETTER_PROVIDER=kit      KIT_API_KEY=... (v3 API key or v4 kit_ key)  KIT_FORM_ID=... (required with a v3 key)
 ```
+Set these inside the tonina-app project (Settings → Environment Variables), for Production and Preview with no branch filter. Team-level shared variables only apply once linked to the project. Vercel reads them at build time, so redeploy after changing them. `GET /api/subscribe` shows which ones a deployment sees.
