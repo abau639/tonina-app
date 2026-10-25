@@ -238,7 +238,7 @@ export default function CACCaseStudy() {
           <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-200 mb-4">
             CFO Case Study
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-5 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-5 leading-tight">
             The Channel That Looked Fine Until It Wasn&apos;t
           </h1>
           <p className="text-lg text-slate-500 leading-relaxed">
@@ -327,7 +327,7 @@ export default function CACCaseStudy() {
         {/* ── Board Deck vs. Reality Table ── */}
         <section className="mb-14">
           <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-3">Internal Data · Six Quarters</div>
-          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">Six Quarters. Nobody Said Anything.</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Six Quarters. Nobody Said Anything.</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-6">
             Left column: what was in the board deck each quarter. Right column: what channel-level data showed. The left column never changed.
           </p>
@@ -344,8 +344,8 @@ export default function CACCaseStudy() {
                 {QUARTERLY_TABLE.map((row) => (
                   <tr key={row.q} className={`border-b border-slate-100 last:border-0 ${row.threshold ? "bg-red-50" : ""}`}>
                     <td className="px-5 py-3.5 font-bold text-slate-500">{row.q}</td>
-                    <td className="px-5 py-3.5 font-mono text-slate-700">{row.blended}</td>
-                    <td className="px-5 py-3.5 font-mono font-bold">
+                    <td className="px-5 py-3.5 tabular-nums text-slate-700">{row.blended}</td>
+                    <td className="px-5 py-3.5 tabular-nums font-bold">
                       <span className={row.hot ? "text-red-500" : "text-slate-700"}>{row.payback}</span>
                       {row.threshold && (
                         <span className="ml-2 text-[10px] uppercase tracking-widest bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">Threshold</span>
@@ -364,7 +364,7 @@ export default function CACCaseStudy() {
         {/* ── Beat 4 + Simulator ── */}
         <section className="mb-14">
           <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-3">04 — The Reallocation Simulator</div>
-          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">What Happens When You Shift the Budget</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">What Happens When You Shift the Budget</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-8">
             The recommendation: cap paid social spend growth and reallocate up to 30% of its budget to the affiliate channel, which holds a stable 5-month payback. Organic is excluded — free channels do not scale on demand, which is exactly why the company leaned harder on paid social as it decayed.
           </p>
@@ -436,7 +436,7 @@ export default function CACCaseStudy() {
         <section>
           <div className="bg-pink-50 border border-pink-100 rounded-2xl p-8">
             <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-4">05 — The Call + The Tradeoff</div>
-            <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-6">What to tell the board</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">What to tell the board</h2>
 
             <div className="space-y-4 text-sm text-slate-700 leading-relaxed mb-6">
               <p>

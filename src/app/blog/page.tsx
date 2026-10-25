@@ -28,7 +28,7 @@ export default function BlogIndex() {
       <SiteNav />
 
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-12 w-full">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">Writings & Memos</h1>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">Writings & Memos</h1>
         <p className="text-lg text-slate-500 leading-relaxed">
           Explorations at the intersection of finance, technology, and building.
         </p>

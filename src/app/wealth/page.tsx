@@ -37,7 +37,7 @@ export default function WealthLandingPage() {
         </section>
         
         <section className="max-w-6xl mx-auto px-6 py-12 border-t border-slate-50">
-          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">Choose your path to understand wealth creation.</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Choose your path to understand wealth creation.</h2>
           <p className="text-base text-slate-500 mb-8">Learn more by playing with the game or the planner.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Link href="/wealth/archetype" className="group block p-8 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-pink-200 hover:shadow-sm transition-all duration-300 no-underline">
