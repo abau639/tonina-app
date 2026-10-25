@@ -20,9 +20,10 @@ import {
     Home, Car, GraduationCap, Baby, Dog, Heart, 
     Banknote, Settings2, Plus, Palmtree, Trash2, LineChart, HelpCircle
 } from "lucide-react";
+import { applySiteFontToCharts } from "~/lib/chartFont";
 
-// Inject site-wide font and slate text color into Chart.js defaults
-ChartJS.defaults.font.family = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+// Site font and slate text color for chart labels
+applySiteFontToCharts();
 ChartJS.defaults.color = "#64748b";
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 

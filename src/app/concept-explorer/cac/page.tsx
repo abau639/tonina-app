@@ -15,8 +15,10 @@ import {
 import { Line } from "react-chartjs-2";
 import { SiteNav } from "~/app/_components/SiteNav";
 import { SiteFooter } from "~/app/_components/SiteFooter";
+import { applySiteFontToCharts } from "~/lib/chartFont";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
+applySiteFontToCharts();
 
 // ── DATA ─────────────────────────────────────────────────────────────────────
 
