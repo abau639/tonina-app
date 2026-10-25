@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { env } from "~/env";
+import { KIT_PUBLIC_FORM_ID } from "~/lib/newsletter";
 
 // Email signup. Forwards the address to whichever newsletter tool is configured:
 //   NEWSLETTER_PROVIDER=beehiiv  + BEEHIIV_API_KEY + BEEHIIV_PUBLICATION_ID
 //   NEWSLETTER_PROVIDER=kit      + KIT_API_KEY + KIT_FORM_ID (form optional with a v4 key)
 // Kit v4 keys start with "kit_"; anything else is treated as a v3 API key (the public one, never the secret).
+// With no Kit key at all, signups go through the Kit form's public endpoint, which needs only the form number
+// (KIT_FORM_ID, or KIT_PUBLIC_FORM_ID in src/lib/newsletter.ts). That is the setup tonina.me uses.
 // With no provider configured it answers 503 so the form can say signups open soon.
 
 // The setup check below must read settings at request time, not at build time.
@@ -26,9 +29,25 @@ async function subscribeBeehiiv(email: string, source: string) {
   return res.ok;
 }
 
+const kitFormId = () => env.KIT_FORM_ID ?? (KIT_PUBLIC_FORM_ID || undefined);
+
+// Same request Kit's own embedded form sends.
+async function subscribeKitForm(email: string) {
+  const formId = kitFormId();
+  if (!formId) return false;
+  const res = await fetch(`https://app.kit.com/forms/${formId}/subscriptions`, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ email_address: email }).toString(),
+  });
+  if (!res.ok) console.error("Kit form signup failed", res.status, await res.text());
+  return res.ok;
+}
+
 async function subscribeKitV3(email: string) {
-  if (!env.KIT_FORM_ID) return false;
-  const res = await fetch(`https://api.convertkit.com/v3/forms/${env.KIT_FORM_ID}/subscribe`, {
+  const formId = kitFormId();
+  if (!formId) return false;
+  const res = await fetch(`https://api.convertkit.com/v3/forms/${formId}/subscribe`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ api_key: env.KIT_API_KEY, email }),
@@ -38,6 +57,7 @@ async function subscribeKitV3(email: string) {
 }
 
 async function subscribeKit(email: string) {
+  if (!env.KIT_API_KEY) return subscribeKitForm(email);
   if (!env.KIT_API_KEY?.startsWith("kit_")) return subscribeKitV3(email);
   const headers = { "X-Kit-Api-Key": env.KIT_API_KEY ?? "", "Content-Type": "application/json" };
   const created = await fetch("https://api.kit.com/v4/subscribers", {
@@ -49,8 +69,9 @@ async function subscribeKit(email: string) {
     console.error("Kit v4 signup failed", created.status, await created.text());
     return false;
   }
-  if (!env.KIT_FORM_ID) return true;
-  const added = await fetch(`https://api.kit.com/v4/forms/${env.KIT_FORM_ID}/subscribers`, {
+  const formId = kitFormId();
+  if (!formId) return true;
+  const added = await fetch(`https://api.kit.com/v4/forms/${formId}/subscribers`, {
     method: "POST",
     headers,
     body: JSON.stringify({ email_address: email }),
@@ -62,11 +83,17 @@ async function subscribeKit(email: string) {
 // Shows only whether each one is set, never the key itself.
 export function GET() {
   const key = env.KIT_API_KEY ?? env.BEEHIIV_API_KEY;
+  const formId = kitFormId();
   return NextResponse.json({
-    provider: env.NEWSLETTER_PROVIDER ?? "not set",
-    apiKey: key ? (env.KIT_API_KEY?.startsWith("kit_") ? "set (Kit v4)" : "set") : "not set",
-    kitFormId: env.KIT_FORM_ID ? (/^\d+$/.test(env.KIT_FORM_ID) ? "set" : "set, but not just digits") : "not set",
+    provider: newsletterProvider() ?? "not set",
+    apiKey: key ? (env.KIT_API_KEY?.startsWith("kit_") ? "set (Kit v4)" : "set") : "not needed for a Kit form",
+    kitFormId: formId ? (/^\d+$/.test(formId) ? "set" : "set, but not just digits") : "not set",
   });
+}
+
+// A Kit form number alone is enough, so it turns signups on even with no NEWSLETTER_PROVIDER.
+function newsletterProvider() {
+  return env.NEWSLETTER_PROVIDER ?? (kitFormId() ? "kit" : undefined);
 }
 
 export async function POST(request: Request) {
@@ -88,7 +115,7 @@ export async function POST(request: Request) {
   }
   const source = typeof body.source === "string" ? body.source.slice(0, 40) : "site";
 
-  const provider = env.NEWSLETTER_PROVIDER;
+  const provider = newsletterProvider();
   if (!provider) {
     return NextResponse.json({ error: "Signups open soon. Please check back in a few days." }, { status: 503 });
   }
