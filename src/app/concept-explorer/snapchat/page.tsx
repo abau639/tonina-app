@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, ArrowLeft, Target, Activity, Users, Lightbulb, AlertTriangle, CheckCircle2, Search, Briefcase, Zap } from "lucide-react";
 import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 // --- DATA & CONTENT ---
 const ROLES = [
@@ -85,7 +86,7 @@ export default function SnapchatCaseStudy() {
             <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-yellow-200 mb-6">
               Interactive Case Study
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">Project: Family Center</h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">Project: Family Center</h1>
             <p className="text-lg text-slate-500 mb-8 leading-relaxed">
               A crisis simulation. You will select a role, gather data under pressure, and present a strategic recommendation to a polarized leadership team.
             </p>
@@ -97,6 +98,7 @@ export default function SnapchatCaseStudy() {
             </button>
           </div>
         </div>
+        <SiteFooter />
       </main>
     );
   }
@@ -126,6 +128,7 @@ export default function SnapchatCaseStudy() {
             </div>
           </div>
         </div>
+        <SiteFooter />
       </main>
     );
   }
@@ -155,6 +158,7 @@ export default function SnapchatCaseStudy() {
             </button>
           </div>
         </div>
+        <SiteFooter />
       </main>
     );
   }
@@ -210,6 +214,7 @@ export default function SnapchatCaseStudy() {
             </button>
           </div>
         </div>
+        <SiteFooter />
       </main>
     );
   }
@@ -251,6 +256,7 @@ export default function SnapchatCaseStudy() {
             </button>
           </div>
         </div>
+        <SiteFooter />
       </main>
     );
   }
@@ -282,6 +288,7 @@ export default function SnapchatCaseStudy() {
             </div>
           </div>
         </div>
+        <SiteFooter />
       </main>
     );
   }
@@ -291,14 +298,14 @@ export default function SnapchatCaseStudy() {
     const optimalCount = findings.filter(m => m.optimal).length;
     
     return (
-      <main className="min-h-screen bg-slate-950 text-slate-50 font-sans flex flex-col">
+      <main className="min-h-screen bg-navy text-slate-50 font-sans flex flex-col">
         <SiteNav />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-4xl w-full py-12">
             
             <div className="text-center mb-12">
               <span className="text-pink-500 font-bold uppercase tracking-widest text-sm mb-4 block">Post-Mortem Review</span>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Strategy {currentStrategy.score}</h1>
+              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">Strategy {currentStrategy.score}</h1>
               <p className="text-slate-400">Evaluating your execution as a {currentRole?.title}.</p>
             </div>
 
@@ -359,6 +366,7 @@ export default function SnapchatCaseStudy() {
 
           </div>
         </div>
+        <SiteFooter />
       </main>
     );
   }

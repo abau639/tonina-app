@@ -132,7 +132,7 @@ export default function SaasDictionary() {
       <SiteNav />
 
       <header className="max-w-3xl mx-auto px-6 pt-16 pb-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">The Language of SaaS</h1>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">The Language of SaaS</h1>
         <p className="text-lg text-slate-500 leading-relaxed">
           A definitive primer on the metrics that drive software valuation. Understand how modern businesses measure growth, retention, and capital efficiency.
         </p>

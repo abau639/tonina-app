@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 import { ArrowRight, User, Heart, Brain, RefreshCcw, Activity, Share2, TrendingUp, TrendingDown, Minus, LineChart, Home, GraduationCap, ShieldCheck, Palmtree } from "lucide-react";
 
 // --- CORE DATA STRUCTURES & CONFIGURATION --- //
@@ -367,13 +369,15 @@ export default function App() {
 
   if (gameState === "intro") {
     return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex items-center justify-center p-6 selection:bg-pink-900/30">
-        <div className="max-w-2xl bg-zinc-900 p-10 md:p-14 rounded-3xl border border-zinc-800 shadow-2xl text-center">
-          <div className="w-16 h-16 bg-zinc-800 text-zinc-300 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-zinc-700">
+      <main className="min-h-screen bg-navy text-zinc-50 font-sans flex flex-col selection:bg-pink-900/30">
+        <SiteNav />
+        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="max-w-2xl bg-navy-800 p-10 md:p-14 rounded-3xl border border-navy-700 shadow-2xl text-center">
+          <div className="w-16 h-16 bg-navy-700 text-zinc-300 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-navy-700">
             <Activity className="w-8 h-8" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">Life: The Simulation</h1>
-          <p className="text-lg text-zinc-400 mb-8 leading-relaxed">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">Life: The Simulation</h1>
+          <p className="text-lg text-navy-soft mb-8 leading-relaxed">
             Seven choices until retirement. What choices do you make?
           </p>
           <button 
@@ -383,32 +387,36 @@ export default function App() {
             Let's Begin <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+      </div>
+        <SiteFooter />
       </main>
     );
   }
 
   if (gameState === "consequence") {
     return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full bg-zinc-900 p-10 md:p-12 rounded-3xl border border-zinc-800 shadow-2xl">
-          <div className="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
-            <span className="text-sm font-bold text-zinc-500 uppercase tracking-widest">The Fallout</span>
-            <span className="text-xs font-bold bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full border border-zinc-700">{getLifeStage(age)}</span>
+      <main className="min-h-screen bg-navy text-zinc-50 font-sans flex flex-col">
+        <SiteNav />
+        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full bg-navy-800 p-10 md:p-12 rounded-3xl border border-navy-700 shadow-2xl">
+          <div className="flex justify-between items-center mb-8 border-b border-navy-700 pb-4">
+            <span className="text-sm font-bold text-navy-soft uppercase tracking-widest">The Fallout</span>
+            <span className="text-xs font-bold bg-navy-700 text-zinc-300 px-3 py-1 rounded-full border border-navy-700">{getLifeStage(age)}</span>
           </div>
 
           <p className="text-xl text-zinc-300 leading-relaxed mb-8">{lastConsequence}</p>
           
-          <div className="flex items-center gap-3 mb-8 p-4 bg-zinc-950 rounded-xl border border-zinc-800">
-             <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Trajectory Impact:</span>
+          <div className="flex items-center gap-3 mb-8 p-4 bg-navy rounded-xl border border-navy-700">
+             <span className="text-xs font-bold text-navy-soft uppercase tracking-widest">Trajectory Impact:</span>
              {financialImpact === "positive" && <span className="flex items-center gap-1 text-emerald-400 text-sm font-bold"><TrendingUp className="w-4 h-4" /> Positive</span>}
              {financialImpact === "negative" && <span className="flex items-center gap-1 text-rose-400 text-sm font-bold"><TrendingDown className="w-4 h-4" /> Negative</span>}
-             {financialImpact === "neutral" && <span className="flex items-center gap-1 text-zinc-400 text-sm font-bold"><Minus className="w-4 h-4" /> Neutral</span>}
+             {financialImpact === "neutral" && <span className="flex items-center gap-1 text-navy-soft text-sm font-bold"><Minus className="w-4 h-4" /> Neutral</span>}
           </div>
 
           {lastEvent && (
-            <div className="bg-zinc-800/50 border border-zinc-700 p-5 rounded-xl mb-8 animate-fade-in">
+            <div className="bg-navy-700/50 border border-navy-700 p-5 rounded-xl mb-8 animate-fade-in">
               <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-xs font-bold text-navy-soft uppercase tracking-widest flex items-center gap-2">
                     <Activity className="w-3 h-3" /> Life Shock
                   </h3>
                   {lastEvent.impact === "positive" && <span className="text-emerald-400 font-bold text-xs">+</span>}
@@ -425,6 +433,8 @@ export default function App() {
             Advance Timeline <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+      </div>
+        <SiteFooter />
       </main>
     );
   }
@@ -434,45 +444,47 @@ export default function App() {
     const plannerUrl = `/wealth/planner?cash=${Math.floor(safeNW)}`;
 
     return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex items-center justify-center p-6 selection:bg-pink-900/30">
+      <main className="min-h-screen bg-navy text-zinc-50 font-sans flex flex-col selection:bg-pink-900/30">
+        <SiteNav />
+        <div className="flex-1 flex items-center justify-center p-6">
         <div className="max-w-4xl w-full py-12">
           
           <div className="text-center mb-10 animate-fade-in">
-            <span className="text-zinc-500 font-bold uppercase tracking-widest text-sm mb-4 block">You successfully retired as...</span>
-            <h1 className="text-5xl font-bold text-white mb-2">{retirementData.archetype}</h1>
+            <span className="text-navy-soft font-bold uppercase tracking-widest text-sm mb-4 block">You successfully retired as...</span>
+            <h1 className="text-5xl font-extrabold tracking-tight text-white mb-2">{retirementData.archetype}</h1>
             <p className={`text-2xl font-bold mb-6 ${retirementData.finalNW >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {formatNW(retirementData.finalNW)} Final Net Worth
             </p>
-            <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto">{retirementData.narrative}</p>
+            <p className="text-lg text-navy-soft leading-relaxed max-w-2xl mx-auto">{retirementData.narrative}</p>
           </div>
 
           {/* 4 Investments Evaluation */}
-          <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl shadow-lg mb-8">
-            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-6 text-center">The 4 Investments Evaluation</h3>
+          <div className="bg-navy-800 border border-navy-700 p-8 rounded-3xl shadow-lg mb-8">
+            <h3 className="text-xs font-bold text-navy-soft uppercase tracking-widest mb-6 text-center">The 4 Investments Evaluation</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.fortress ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-zinc-800 bg-zinc-950/50'}`}>
-                    <Home className={`w-6 h-6 mb-2 ${retirementData.investments.fortress ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.fortress ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-navy-700 bg-navy/50'}`}>
+                    <Home className={`w-6 h-6 mb-2 ${retirementData.investments.fortress ? 'text-emerald-400' : 'text-navy-soft'}`} />
                     <span className="text-sm font-bold text-zinc-300 uppercase tracking-wider mb-2">The Fortress</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.fortress ? 'bg-emerald-900 text-emerald-300' : 'bg-zinc-800 text-zinc-500'}`}>{retirementData.investments.fortress ? 'PASS' : 'FAIL'}</span>
-                    <p className="text-sm text-zinc-400 leading-relaxed">Fully owning a home to secure your physical place in the world.</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.fortress ? 'bg-emerald-900 text-emerald-300' : 'bg-navy-700 text-navy-soft'}`}>{retirementData.investments.fortress ? 'PASS' : 'FAIL'}</span>
+                    <p className="text-sm text-navy-soft leading-relaxed">Fully owning a home to secure your physical place in the world.</p>
                 </div>
-                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.legacy ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-zinc-800 bg-zinc-950/50'}`}>
-                    <GraduationCap className={`w-6 h-6 mb-2 ${retirementData.investments.legacy ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.legacy ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-navy-700 bg-navy/50'}`}>
+                    <GraduationCap className={`w-6 h-6 mb-2 ${retirementData.investments.legacy ? 'text-emerald-400' : 'text-navy-soft'}`} />
                     <span className="text-sm font-bold text-zinc-300 uppercase tracking-wider mb-2">The Legacy</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.legacy ? 'bg-emerald-900 text-emerald-300' : 'bg-zinc-800 text-zinc-500'}`}>{retirementData.investments.legacy ? 'PASS' : 'FAIL'}</span>
-                    <p className="text-sm text-zinc-400 leading-relaxed">Providing for family and building a stable foundational network.</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.legacy ? 'bg-emerald-900 text-emerald-300' : 'bg-navy-700 text-navy-soft'}`}>{retirementData.investments.legacy ? 'PASS' : 'FAIL'}</span>
+                    <p className="text-sm text-navy-soft leading-relaxed">Providing for family and building a stable foundational network.</p>
                 </div>
-                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.shield ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-zinc-800 bg-zinc-950/50'}`}>
-                    <ShieldCheck className={`w-6 h-6 mb-2 ${retirementData.investments.shield ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.shield ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-navy-700 bg-navy/50'}`}>
+                    <ShieldCheck className={`w-6 h-6 mb-2 ${retirementData.investments.shield ? 'text-emerald-400' : 'text-navy-soft'}`} />
                     <span className="text-sm font-bold text-zinc-300 uppercase tracking-wider mb-2">The Shield</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.shield ? 'bg-emerald-900 text-emerald-300' : 'bg-zinc-800 text-zinc-500'}`}>{retirementData.investments.shield ? 'PASS' : 'FAIL'}</span>
-                    <p className="text-sm text-zinc-400 leading-relaxed">Maintaining physical health so medical costs don't drain wealth.</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.shield ? 'bg-emerald-900 text-emerald-300' : 'bg-navy-700 text-navy-soft'}`}>{retirementData.investments.shield ? 'PASS' : 'FAIL'}</span>
+                    <p className="text-sm text-navy-soft leading-relaxed">Maintaining physical health so medical costs don't drain wealth.</p>
                 </div>
-                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.freedom ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-zinc-800 bg-zinc-950/50'}`}>
-                    <Palmtree className={`w-6 h-6 mb-2 ${retirementData.investments.freedom ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                <div className={`p-5 rounded-xl border flex flex-col items-center text-center ${retirementData.investments.freedom ? 'border-emerald-900/50 bg-emerald-950/20' : 'border-navy-700 bg-navy/50'}`}>
+                    <Palmtree className={`w-6 h-6 mb-2 ${retirementData.investments.freedom ? 'text-emerald-400' : 'text-navy-soft'}`} />
                     <span className="text-sm font-bold text-zinc-300 uppercase tracking-wider mb-2">The Freedom</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.freedom ? 'bg-emerald-900 text-emerald-300' : 'bg-zinc-800 text-zinc-500'}`}>{retirementData.investments.freedom ? 'PASS' : 'FAIL'}</span>
-                    <p className="text-sm text-zinc-400 leading-relaxed">Having sufficient capital ($1.5M+) to live life on your own terms.</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded mb-3 ${retirementData.investments.freedom ? 'bg-emerald-900 text-emerald-300' : 'bg-navy-700 text-navy-soft'}`}>{retirementData.investments.freedom ? 'PASS' : 'FAIL'}</span>
+                    <p className="text-sm text-navy-soft leading-relaxed">Having sufficient capital ($1.5M+) to live life on your own terms.</p>
                 </div>
             </div>
           </div>
@@ -486,26 +498,26 @@ export default function App() {
             </button>
             <button 
               onClick={handleShare}
-              className="w-full sm:w-auto bg-transparent border border-zinc-700 text-zinc-300 px-8 py-3.5 rounded-full font-bold hover:bg-zinc-900 hover:text-white transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto bg-transparent border border-navy-700 text-zinc-300 px-8 py-3.5 rounded-full font-bold hover:bg-navy-800 hover:text-white transition-all flex items-center justify-center gap-2"
             >
               <Share2 className="w-4 h-4" /> {shareText}
             </button>
             <Link 
               href={plannerUrl}
-              className="w-full sm:w-auto bg-emerald-600 text-white px-8 py-3.5 rounded-full font-bold hover:bg-emerald-500 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto bg-pink-600 text-white px-8 py-3.5 rounded-full font-bold hover:bg-pink-700 transition-all flex items-center justify-center gap-2"
             >
               <LineChart className="w-4 h-4" /> Build a Real Plan
             </Link>
           </div>
 
           {/* Decision Tree / Path Taken */}
-          <div className="bg-zinc-900/50 border border-zinc-800/50 p-8 rounded-3xl animate-fade-in mt-8">
-            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-6">Your Path</h3>
-            <div className="relative border-l border-zinc-700 ml-3 space-y-6">
+          <div className="bg-navy-800/50 border border-navy-700/50 p-8 rounded-3xl animate-fade-in mt-8">
+            <h3 className="text-xs font-bold text-navy-soft uppercase tracking-widest mb-6">Your Path</h3>
+            <div className="relative border-l border-navy-700 ml-3 space-y-6">
                 {history.map((h, i) => (
                     <div key={i} className="relative pl-6">
-                        <div className="absolute -left-1.5 top-1.5 w-3 h-3 bg-emerald-500 rounded-full ring-4 ring-zinc-950"></div>
-                        <p className="text-xs text-zinc-500 font-bold mb-1">Age {h.age} • {h.title}</p>
+                        <div className="absolute -left-1.5 top-1.5 w-3 h-3 bg-emerald-500 rounded-full ring-4 ring-navy"></div>
+                        <p className="text-xs text-navy-soft font-bold mb-1">Age {h.age} • {h.title}</p>
                         <p className="text-sm text-emerald-400 font-medium">{h.choice}</p>
                     </div>
                 ))}
@@ -513,11 +525,11 @@ export default function App() {
           </div>
 
           {triggeredEventsLog.length > 0 && (
-            <div className="bg-zinc-900/50 border border-zinc-800/50 p-8 rounded-3xl animate-fade-in mt-8">
-              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Unplanned Reality</h3>
+            <div className="bg-navy-800/50 border border-navy-700/50 p-8 rounded-3xl animate-fade-in mt-8">
+              <h3 className="text-xs font-bold text-navy-soft uppercase tracking-widest mb-4">Unplanned Reality</h3>
               <ul className="space-y-4">
                 {triggeredEventsLog.map((evt, i) => (
-                  <li key={i} className="text-sm text-zinc-400 flex items-start gap-3 leading-relaxed">
+                  <li key={i} className="text-sm text-navy-soft flex items-start gap-3 leading-relaxed">
                     <span className="text-pink-600 mt-1">•</span> {evt}
                   </li>
                 ))}
@@ -525,19 +537,23 @@ export default function App() {
             </div>
           )}
         </div>
+      </div>
+        <SiteFooter />
       </main>
     );
   }
 
   // default: playing
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-50 font-sans flex flex-col items-center justify-center p-6 selection:bg-pink-900/30">
+    <main className="min-h-screen bg-navy text-zinc-50 font-sans flex flex-col selection:bg-pink-900/30">
+        <SiteNav />
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
       <div className="max-w-3xl w-full">
         
         {/* HUD */}
         <div className="flex justify-start items-center mb-8 px-2">
           <div>
-            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Current Life Stage</div>
+            <div className="text-[10px] font-bold text-navy-soft uppercase tracking-widest mb-1">Current Life Stage</div>
             <div className="text-lg font-bold text-zinc-100 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> 
               {getLifeStage(age)}
@@ -546,9 +562,9 @@ export default function App() {
         </div>
 
         {/* Scenario Card */}
-        <div className="bg-zinc-900 p-8 md:p-12 rounded-3xl border border-zinc-800 shadow-2xl mb-6">
+        <div className="bg-navy-800 p-8 md:p-12 rounded-3xl border border-navy-700 shadow-2xl mb-6">
           <h2 className="text-3xl font-bold text-white mb-4">{currentDecision?.title}</h2>
-          <p className="text-lg text-zinc-400 leading-relaxed mb-10">
+          <p className="text-lg text-navy-soft leading-relaxed mb-10">
             {currentDecision?.text}
           </p>
 
@@ -557,11 +573,11 @@ export default function App() {
               <button
                 key={idx}
                 onClick={() => handleChoice(choice, currentDecision.title)}
-                className="w-full text-left p-6 rounded-2xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-800 hover:border-zinc-700 transition-all duration-300 group"
+                className="w-full text-left p-6 rounded-2xl border border-navy-700 bg-navy hover:bg-navy-700 hover:border-navy-700 transition-all duration-300 group"
               >
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-zinc-300 group-hover:text-white text-lg pr-4">{choice.text}</span>
-                  <ArrowRight className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 shrink-0" />
+                  <ArrowRight className="w-5 h-5 text-navy-soft group-hover:text-white transition-colors opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 shrink-0" />
                 </div>
               </button>
             ))}
@@ -569,6 +585,8 @@ export default function App() {
         </div>
 
       </div>
-    </main>
+    </div>
+        <SiteFooter />
+      </main>
   );
 }

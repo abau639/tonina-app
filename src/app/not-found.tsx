@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 const DOLPHIN_FACTS = [
   "Dolphins use non-verbal communication and specific whistles to talk to each other.",
@@ -34,7 +36,9 @@ export default function NotFound() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 font-sans flex flex-col items-center justify-center p-6 selection:bg-pink-100">
+    <main className="min-h-screen bg-slate-50 font-sans flex flex-col selection:bg-pink-100">
+      <SiteNav />
+      <div className="flex-1 flex items-center justify-center p-6">
       <div className="max-w-xl w-full text-center">
         
         {/* Playful Emoji */}
@@ -42,7 +46,7 @@ export default function NotFound() {
             🐬
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
           404: Lost at Sea
         </h1>
         
@@ -70,11 +74,13 @@ export default function NotFound() {
         {/* Action */}
         <Link 
             href="/" 
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg active:scale-95"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-pink-600 text-white font-bold hover:bg-pink-700 transition-all shadow-md hover:shadow-lg active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" /> Return to Tonina.me
         </Link>
       </div>
+      </div>
+      <SiteFooter />
     </main>
   );
 }

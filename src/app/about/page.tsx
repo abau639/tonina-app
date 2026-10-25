@@ -33,7 +33,7 @@ const CHAPTERS: { stage: string; title: string; body: string; wins?: string[] }[
   {
     stage: "Early career",
     title: "Structured finance and transaction services",
-    body: "My first professional years were in structured finance consulting and transaction services. That's where I learned how deals are put together, and how much hides behind a single number.",
+    body: "My first professional years were in structured finance consulting and transaction services. That's where I learned to follow the money: where funds come from, how they move through a deal, and who gets paid back first.",
   },
   {
     stage: "Today",

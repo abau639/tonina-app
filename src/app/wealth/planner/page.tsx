@@ -20,9 +20,10 @@ import {
     Home, Car, GraduationCap, Baby, Dog, Heart, 
     Banknote, Settings2, Plus, Palmtree, Trash2, LineChart, HelpCircle
 } from "lucide-react";
+import { applySiteFontToCharts } from "~/lib/chartFont";
 
-// Inject site-wide font and slate text color into Chart.js defaults
-ChartJS.defaults.font.family = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+// Site font and slate text color for chart labels
+applySiteFontToCharts();
 ChartJS.defaults.color = "#64748b";
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
@@ -352,7 +353,7 @@ function AdvisorContent() {
                     <div className="inline-flex items-center gap-2 bg-pink-50 text-pink-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-pink-100 mb-4">
                         Interactive Modeling
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">The Scenario Planner</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6">The Scenario Planner</h1>
                 </div>
 
                 <div className="max-w-3xl mx-auto bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mb-12 text-slate-600 leading-relaxed">

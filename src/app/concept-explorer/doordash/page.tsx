@@ -111,7 +111,7 @@ export default function DoorDashTeardown() {
         <div className="lg:col-span-5 pb-32 pt-10">
           <div className="mb-24">
             <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-200 mb-6">Financial Teardown</div>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">Deconstructing DoorDash (DASH)</h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">Deconstructing DoorDash (DASH)</h1>
             <p className="text-sm text-slate-500 leading-relaxed">
               Scroll down to explore the mechanics of modern marketplace financials. Pulling data from the most recent financials, we get insights into how the company is fueling its growth and sustainably focusing on DashPass membership to drive long-term value.
             </p>
@@ -120,7 +120,7 @@ export default function DoorDashTeardown() {
           <div className="space-y-[60vh]">
               {/* Step 1 */}
               <div className={`step-card p-8 rounded-2xl border transition-all duration-500 ${activeStep === 1 ? 'bg-pink-50 border-pink-200 shadow-sm opacity-100' : 'bg-slate-50 border-slate-200 opacity-40'}`} data-step="1">
-                <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-3">1. Revenue Recognition</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">1. Revenue Recognition</h2>
                 <p className="text-sm text-slate-600 leading-relaxed mb-6">
                   Because DoorDash acts as an agent connecting consumers and merchants, they only record their "take rate" (commissions and fees) as Revenue. Notice the incredible top-line growth from 2024 to 2025.
                 </p>
@@ -132,7 +132,7 @@ export default function DoorDashTeardown() {
 
               {/* Step 2 */}
               <div className={`step-card p-8 rounded-2xl border transition-all duration-500 ${activeStep === 2 ? 'bg-pink-50 border-pink-200 shadow-sm opacity-100' : 'bg-slate-50 border-slate-200 opacity-40'}`} data-step="2">
-                <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-3">2. Building the Moat (R&D + S&M)</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">2. Building the Moat (R&D + S&M)</h2>
                 <p className="text-sm text-slate-600 leading-relaxed mb-6">
                   DoorDash spends heavily on Research & Development (optimizing logistics) and Sales & Marketing (acquiring DashPass members). Together, these form the engine of growth—nearly $4 Billion combined in 2025. By expensing these immediately rather than capitalizing them, GAAP profitability is historically suppressed to establish long-term market dominance.
                 </p>
@@ -140,7 +140,7 @@ export default function DoorDashTeardown() {
 
               {/* Step 3 */}
               <div className={`step-card p-8 rounded-2xl border transition-all duration-500 ${activeStep === 3 ? 'bg-pink-50 border-pink-200 shadow-sm opacity-100' : 'bg-slate-50 border-slate-200 opacity-40'}`} data-step="3">
-                <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-3">3. The Reality of Cash Flow</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">3. The Reality of Cash Flow</h2>
                 <p className="text-sm text-slate-600 leading-relaxed mb-6">
                   Net Income is just the starting point. To find true operating cash, we add back massive non-cash expenses—specifically $1.25B in Stock-Based Compensation (SBC) and $482M in Depreciation.
                   <br/><br/>
@@ -150,7 +150,7 @@ export default function DoorDashTeardown() {
 
               {/* Step 4 */}
               <div className={`step-card p-8 rounded-2xl border transition-all duration-500 ${activeStep === 4 ? 'bg-pink-50 border-pink-200 shadow-sm opacity-100' : 'bg-slate-50 border-slate-200 opacity-40'}`} data-step="4">
-                <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-3">4. The Balance Sheet Equilibrium</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">4. The Balance Sheet Equilibrium</h2>
                 <p className="text-sm text-slate-600 leading-relaxed mb-6">
                   Accounting must perfectly balance. Total Assets surged to $19.6B in 2025. That growth was funded by taking on new liabilities (the convertible notes) and through Equity. Notice how the issuance of SBC continuously swells "Additional Paid-In Capital", balancing out the historical Accumulated Deficit.
                 </p>

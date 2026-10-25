@@ -20,7 +20,7 @@ export default function BlogPost() {
         </Link>
 
         <header className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
             Your Debt Doesn&apos;t Have to Own You
           </h1>
           <div className="flex items-center justify-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">

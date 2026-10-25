@@ -14,7 +14,7 @@ export default function RefundsPage() {
       <SiteNav />
 
       <div className="flex-1 max-w-3xl mx-auto px-6 py-16 w-full">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-8">Refund Policy</h1>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-8">Refund Policy</h1>
 
         <div className="prose prose-slate max-w-none prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-p:text-base prose-p:leading-relaxed prose-p:text-slate-600">
           <p className="text-lg text-slate-700">
