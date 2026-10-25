@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { MapPin, Wind, Umbrella, Layers, CloudRain, ArrowLeft, Sun, Search, Loader2, AlertTriangle } from "lucide-react";
-
-const DolphinLogo = () => (
-  <span className="inline-block grayscale opacity-80 select-none text-2xl" style={{ lineHeight: 1 }}>🐋</span>
-);
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PeriodData {
@@ -190,21 +188,7 @@ export default function TrueSensationPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-pink-100 flex flex-col">
-      <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <DolphinLogo /> Tonina.me
-            </Link>
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <Link href="/concept-explorer" className="text-pink-600 font-bold transition-colors">Concept Explorer</Link>
-              <Link href="/wealth" className="hover:text-slate-900 transition-colors">Tonina Wealth</Link>
-              <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-              <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       <div className="flex-1 max-w-xl mx-auto w-full px-6 py-10 space-y-4">
 
@@ -280,15 +264,7 @@ export default function TrueSensationPage() {
 
       </div>
 
-      <footer className="border-t border-slate-100 bg-white py-8 mt-auto w-full">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm font-medium text-slate-500">
-          <div className="flex gap-6">
-            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-          </div>
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Tonina.me</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

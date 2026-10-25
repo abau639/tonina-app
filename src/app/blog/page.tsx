@@ -1,16 +1,12 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-
-// Desaturated, grayscale emoji logo
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>
-    🐋
-  </span>
-);
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 const BLOG_POSTS = [
   {
     slug: "debt-freedom",
+    href: "/blog/debt-freedom",
     title: "Your Debt Doesn't Have to Own You",
     excerpt: "Most college grads carry debt like background noise. Here's why paying it down aggressively — not just investing around it — is the move that buys back your freedom.",
     date: "JUN 2026",
@@ -18,8 +14,9 @@ const BLOG_POSTS = [
   },
   {
     slug: "why-i-built-this",
+    href: "/about",
     title: "Why I Built This Platform",
-    excerpt: "From securitized bonds to full-stack engineering: exploring the compounding value of building your own tools.",
+    excerpt: "My path from a middle-school paycheck to corporate finance, and why Tonina exists. Now on the About page.",
     date: "MAR 2026",
     readTime: "3 min read"
   }
@@ -28,24 +25,10 @@ const BLOG_POSTS = [
 export default function BlogIndex() {
   return (
     <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-pink-100 flex flex-col">
-      <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <DolphinLogo /> Tonina.me
-            </Link>
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <Link href="/concept-explorer" className="hover:text-slate-900 transition-colors">Concept Explorer</Link>
-              <Link href="/wealth" className="hover:text-slate-900 transition-colors">Tonina Wealth</Link>
-              <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-              <span className="text-pink-600 font-bold">Tonina Blog</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       <section className="max-w-3xl mx-auto px-6 pt-16 pb-12 w-full">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-4">Writings & Memos</h1>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">Writings & Memos</h1>
         <p className="text-lg text-slate-500 leading-relaxed">
           Explorations at the intersection of finance, technology, and building.
         </p>
@@ -55,7 +38,7 @@ export default function BlogIndex() {
         <div className="flex flex-col space-y-8">
           {BLOG_POSTS.map((post, idx) => (
             <Link 
-              href={`/blog/${post.slug}`} 
+              href={post.href} 
               key={idx} 
               className="group block py-6 border-t border-slate-100 first:border-t-0 hover:bg-slate-50 -mx-6 px-6 rounded-2xl transition-colors"
             >
@@ -64,7 +47,7 @@ export default function BlogIndex() {
                 <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{post.readTime}</span>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-pink-600 transition-colors">
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3 group-hover:text-pink-600 transition-colors">
                 {post.title}
               </h2>
               <p className="text-base text-slate-600 leading-relaxed mb-4">
@@ -78,15 +61,7 @@ export default function BlogIndex() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-100 bg-white py-8 mt-auto w-full">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm font-medium text-slate-500">
-          <div className="flex gap-6">
-            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-          </div>
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Tonina.me</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

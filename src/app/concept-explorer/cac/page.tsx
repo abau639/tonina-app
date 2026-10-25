@@ -13,30 +13,10 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { SiteNav } from "~/app/_components/SiteNav";
+import { SiteFooter } from "~/app/_components/SiteFooter";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
-
-const DolphinLogo = ({ className = "text-2xl" }: { className?: string }) => (
-  <span className={`inline-block grayscale opacity-80 select-none ${className}`} style={{ lineHeight: 1 }}>🐋</span>
-);
-
-const GlobalNav = () => (
-  <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-    <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-      <div className="flex items-center gap-8">
-        <Link href="/" className="font-bold tracking-tight text-slate-900 text-lg flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <DolphinLogo /> Tonina.me
-        </Link>
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-          <Link href="/concept-explorer" className="text-pink-600 font-bold transition-colors">Concept Explorer</Link>
-          <Link href="/wealth" className="hover:text-slate-900 transition-colors">Tonina Wealth</Link>
-          <Link href="/lab" className="hover:text-slate-900 transition-colors">The Lab</Link>
-          <Link href="/blog" className="hover:text-slate-900 transition-colors">Tonina Blog</Link>
-        </div>
-      </div>
-    </div>
-  </nav>
-);
 
 // ── DATA ─────────────────────────────────────────────────────────────────────
 
@@ -244,7 +224,7 @@ export default function CACCaseStudy() {
 
   return (
     <main className="min-h-screen bg-white text-slate-900 font-sans selection:bg-pink-100 flex flex-col">
-      <GlobalNav />
+      <SiteNav />
 
       <div className="max-w-3xl mx-auto px-6 pt-16 pb-24 w-full flex-1">
         <Link href="/concept-explorer" className="inline-flex items-center text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors mb-10">
@@ -345,7 +325,7 @@ export default function CACCaseStudy() {
         {/* ── Board Deck vs. Reality Table ── */}
         <section className="mb-14">
           <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-3">Internal Data · Six Quarters</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Six Quarters. Nobody Said Anything.</h2>
+          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">Six Quarters. Nobody Said Anything.</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-6">
             Left column: what was in the board deck each quarter. Right column: what channel-level data showed. The left column never changed.
           </p>
@@ -382,7 +362,7 @@ export default function CACCaseStudy() {
         {/* ── Beat 4 + Simulator ── */}
         <section className="mb-14">
           <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-3">04 — The Reallocation Simulator</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">What Happens When You Shift the Budget</h2>
+          <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-2">What Happens When You Shift the Budget</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-8">
             The recommendation: cap paid social spend growth and reallocate up to 30% of its budget to the affiliate channel, which holds a stable 5-month payback. Organic is excluded — free channels do not scale on demand, which is exactly why the company leaned harder on paid social as it decayed.
           </p>
@@ -454,7 +434,7 @@ export default function CACCaseStudy() {
         <section>
           <div className="bg-pink-50 border border-pink-100 rounded-2xl p-8">
             <div className="text-[10px] font-bold uppercase tracking-widest text-pink-600 mb-4">05 — The Call + The Tradeoff</div>
-            <h2 className="text-xl font-bold text-slate-900 mb-6">What to tell the board</h2>
+            <h2 className="text-2xl md:text-[28px] font-bold text-slate-900 mb-6">What to tell the board</h2>
 
             <div className="space-y-4 text-sm text-slate-700 leading-relaxed mb-6">
               <p>
@@ -484,15 +464,7 @@ export default function CACCaseStudy() {
         </section>
       </div>
 
-      <footer className="border-t border-slate-100 bg-white py-8 mt-auto w-full">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm font-medium text-slate-500">
-          <div className="flex gap-6">
-            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-          </div>
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Tonina.me</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

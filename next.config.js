@@ -16,6 +16,17 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Retired pages: send old links somewhere useful instead of a 404
+  async redirects() {
+    return [
+      { source: "/lab/:path*", destination: "/", permanent: false },
+      { source: "/journey", destination: "/", permanent: false },
+      { source: "/sandbox/:path*", destination: "/", permanent: false },
+      { source: "/concept-explorer/airbnb", destination: "/concept-explorer", permanent: false },
+      { source: "/blog/why-i-built-this", destination: "/about", permanent: true },
+      { source: "/wealth/advisor", destination: "/wealth/planner", permanent: true },
+    ];
+  },
 };
 
 const withMDX = createMDX({

@@ -8,6 +8,7 @@ export default {
   	extend: {
   		fontFamily: {
   			sans: ["var(--font-sans)", ...fontFamily.sans],
+  			display: ["var(--font-display)", ...fontFamily.sans],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -15,6 +16,10 @@ export default {
   			sm: 'calc(var(--radius) - 4px)',
   		},
   		colors: {
+  			// Theme A ("Navy bands"): navy bands, mist sections, Tonina pink for actions only
+  			navy: { DEFAULT: '#0f1b2d', 800: '#16243a', 700: '#22324d', soft: '#b7c2d6' },
+  			mist: '#eef1f6',
+  			ink: '#0f1b2d',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
