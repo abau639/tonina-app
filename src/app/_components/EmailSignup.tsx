@@ -21,12 +21,15 @@ export function EmailSignup({ source, tone = "dark", id }: { source: string; ton
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, website, source }),
       });
-      const data = (await res.json()) as { ok?: boolean; error?: string };
+      const data = (await res.json()) as { ok?: boolean; error?: string; detail?: string };
       if (res.ok && data.ok) {
-        setStatus({ state: "done", message: "You're in. Check your inbox for a welcome email." });
+        setStatus({ state: "done", message: "Almost done. Check your inbox and confirm your email." });
         setEmail("");
       } else {
-        setStatus({ state: "error", message: data.error ?? "We couldn't sign you up just now. Please try again later." });
+        const message = data.error ?? "We couldn't sign you up just now. Please try again later.";
+        // On preview deployments, show the technical reason so setup problems are visible without logs.
+        const preview = window.location.hostname.endsWith(".vercel.app");
+        setStatus({ state: "error", message: preview && data.detail ? `${message} (${data.detail})` : message });
       }
     } catch {
       setStatus({ state: "error", message: "We couldn't reach the server. Check your connection and try again." });

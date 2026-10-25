@@ -40,8 +40,16 @@ async function subscribeKitForm(email: string) {
     headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ email_address: email }).toString(),
   });
-  if (!res.ok) console.error("Kit form signup failed", res.status, await res.text());
-  return res.ok;
+  // Kit can answer 200 with a failure inside, so only a "success" status counts.
+  const text = await res.text();
+  let status: unknown;
+  try {
+    status = (JSON.parse(text) as { status?: unknown }).status;
+  } catch {
+    status = undefined;
+  }
+  if (res.ok && status === "success") return true;
+  throw new Error(`Kit form answered ${res.status}: ${text.slice(0, 200)}`);
 }
 
 async function subscribeKitV3(email: string) {
@@ -126,6 +134,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Newsletter signup failed", error);
-    return NextResponse.json({ error: "We couldn't sign you up just now. Please try again later." }, { status: 502 });
+    // detail helps diagnose setup from the browser's network tab; it never includes keys.
+    const detail = error instanceof Error ? error.message.slice(0, 240) : undefined;
+    return NextResponse.json({ error: "We couldn't sign you up just now. Please try again later.", detail }, { status: 502 });
   }
 }
